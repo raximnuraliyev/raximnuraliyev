@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="846" height="40" viewBox="0 0 846 40" fill="none">
+  <line x1="0" y1="20" x2="846" y2="20" stroke="#161b22" stroke-width="0.5"/>
+  <polyline
+    points="0,20 323,20 340,20 350,8 360,32 370,4 380,36 390,14 400,26 410,20 846,20"
+    stroke="#00d4ff"
+    stroke-width="1.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-dasharray="1000"
+    stroke-dashoffset="1000">
+    <animate
+      attributeName="stroke-dashoffset"
+      values="1000;0"
+      dur="2.5s"
+      repeatCount="indefinite"/>
+  </polyline>
+  <polyline
+    points="0,20 323,20 340,20 350,8 360,32 370,4 380,36 390,14 400,26 410,20 846,20"
+    stroke="#00d4ff"
+    stroke-width="4"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    opacity="0.15"
+    stroke-dasharray="1000"
+    stroke-dashoffset="1000">
+    <animate
+      attributeName="stroke-dashoffset"
+      values="1000;0"
+      dur="2.5s"
+      repeatCount="indefinite"/>
+  </polyline>
+</svg>
