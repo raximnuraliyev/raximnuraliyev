@@ -9,17 +9,15 @@
 
 <!-- ═══════════════════════════ HEADER ═══════════════════════════ -->
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:238636&height=220&section=header&text=Rakhim%20Nuraliyev&fontSize=42&fontColor=e6edf3&animation=fadeIn&fontAlignY=35&desc=Backend%20Engineering%20%7C%20Computer%20Science&descSize=16&descColor=3fb950&descAlignY=55" width="100%" />
-
-<br>
+# Rakhim Nuraliyev
 
 <a href="https://git.io/typing-svg">
-  <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=500&size=20&duration=3000&pause=1000&color=3FB950&center=true&vCenter=true&repeat=true&width=600&height=45&lines=Computer+Science+student+(19)+focused+on+backend+engineering.;Building+scalable+systems+and+clean+architecture.;Exploring+distributed+systems+and+real-time+applications." />
+  <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=500&size=18&duration=3000&pause=1000&color=3FB950&center=true&vCenter=true&repeat=true&width=500&height=35&lines=%24+cat+role.txt;Computer+Science+student+(19);Focused+on+backend+engineering;Building+scalable+systems" />
 </a>
 
 <br>
 
-<img src="https://komarev.com/ghpvc/?username=raximnuraliyev&color=238636&style=flat-square&label=Profile+Views" />
+<img src="https://komarev.com/ghpvc/?username=raximnuraliyev&color=238636&style=for-the-badge&label=VIEWS" />
 
 </div>
 
@@ -93,7 +91,7 @@ status: Building
 
 <br>
 
-<img src="https://skillicons.dev/icons?i=cs,dotnet,nodejs,postgres,mongodb,blender,unity&theme=dark" />
+<img src="https://go-skill-icons.vercel.app/api/icons?i=csharp,dotnet,nodejs,postgresql,mongodb,blender,unity&theme=dark&perline=7" />
 
 </div>
 
@@ -145,13 +143,7 @@ status: Building
 
 <br>
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/raximnuraliyev/ajax-profile/output/github-snake-dark.svg" />
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/raximnuraliyev/ajax-profile/output/github-snake.svg" />
-  <img alt="Snake animation" src="https://raw.githubusercontent.com/raximnuraliyev/ajax-profile/output/github-snake-dark.svg" width="100%" />
-</picture>
-
-<sub>Run the "Generate Snake Animation" workflow in Actions to activate this section.</sub>
+<img src="https://raw.githubusercontent.com/raximnuraliyev/ajax-profile/output/github-snake-dark.svg" alt="Snake animation" width="100%" />
 
 </div>
 
@@ -183,9 +175,9 @@ status: Building
 
 <!-- ═══════════════════════════ FOOTER ═══════════════════════════ -->
 
-<div align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:238636,50:161b22,100:0d1117&height=120&section=footer" width="100%" />
-</div>
+<img src="https://raw.githubusercontent.com/raximnuraliyev/ajax-profile/main/assets/neon-line.svg" width="100%" />
+
+<br>
 
 <div align="center">
   <samp>Focused on long-term growth in backend systems, architecture, and interactive development.</samp>
