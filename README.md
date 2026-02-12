@@ -87,7 +87,7 @@ status: Building
 
 <div align="center">
 
-### // Tech Stack
+### Tech Stack
 
 <br>
 
@@ -105,7 +105,7 @@ status: Building
 
 <div align="center">
 
-### // GitHub Analytics
+### GitHub Analytics
 
 <br>
 
@@ -139,7 +139,7 @@ status: Building
 
 <div align="center">
 
-### // Contribution Snake
+### Contribution Snake
 
 <br>
 
@@ -157,7 +157,7 @@ status: Building
 
 <div align="center">
 
-### // Competitive Programming
+### Competitive Programming
 
 <br>
 
