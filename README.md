@@ -79,7 +79,7 @@ status: Building
 
 <br>
 
-<img src="https://raw.githubusercontent.com/raximnuraliyev/ajax-profile/main/assets/neon-line.svg" width="100%" />
+<img src="https://raw.githubusercontent.com/raximnuraliyev/raximnuraliyev/main/assets/neon-line.svg" width="100%" />
 
 <br>
 
@@ -97,7 +97,7 @@ status: Building
 
 <br>
 
-<img src="https://raw.githubusercontent.com/raximnuraliyev/ajax-profile/main/assets/neon-line.svg" width="100%" />
+<img src="https://raw.githubusercontent.com/raximnuraliyev/raximnuraliyev/main/assets/neon-line.svg" width="100%" />
 
 <br>
 
@@ -131,7 +131,7 @@ status: Building
 
 <br>
 
-<img src="https://raw.githubusercontent.com/raximnuraliyev/ajax-profile/main/assets/heartbeat.svg" width="100%" />
+<img src="https://raw.githubusercontent.com/raximnuraliyev/raximnuraliyev/main/assets/heartbeat.svg" width="100%" />
 
 <br>
 
@@ -143,13 +143,13 @@ status: Building
 
 <br>
 
-<img src="https://raw.githubusercontent.com/raximnuraliyev/ajax-profile/output/github-snake-dark.svg" alt="Snake animation" width="100%" />
+<img src="https://raw.githubusercontent.com/raximnuraliyev/raximnuraliyev/output/github-snake-dark.svg" alt="Snake animation" width="100%" />
 
 </div>
 
 <br>
 
-<img src="https://raw.githubusercontent.com/raximnuraliyev/ajax-profile/main/assets/neon-line.svg" width="100%" />
+<img src="https://raw.githubusercontent.com/raximnuraliyev/raximnuraliyev/main/assets/neon-line.svg" width="100%" />
 
 <br>
 
@@ -175,7 +175,7 @@ status: Building
 
 <!-- ═══════════════════════════ FOOTER ═══════════════════════════ -->
 
-<img src="https://raw.githubusercontent.com/raximnuraliyev/ajax-profile/main/assets/neon-line.svg" width="100%" />
+<img src="https://raw.githubusercontent.com/raximnuraliyev/raximnuraliyev/main/assets/neon-line.svg" width="100%" />
 
 <br>
 
