@@ -9,21 +9,21 @@
 
 <!-- ═══════════════════════════ HEADER ═══════════════════════════ -->
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:00d4ff&height=220&section=header&text=Rakhim%20Nuraliyev&fontSize=42&fontColor=e6edf3&animation=fadeIn&fontAlignY=35&desc=Backend%20Engineering%20%7C%20Computer%20Science&descSize=16&descColor=58a6ff&descAlignY=55" width="100%" />
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:00ff41&height=220&section=header&text=Rakhim%20Nuraliyev&fontSize=42&fontColor=e6edf3&animation=fadeIn&fontAlignY=35&desc=Backend%20Engineering%20%7C%20Computer%20Science&descSize=16&descColor=39d353&descAlignY=55" width="100%" />
 
 <br>
 
 <a href="https://git.io/typing-svg">
-  <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=500&size=20&duration=3000&pause=1000&color=00D4FF&center=true&vCenter=true&repeat=true&width=600&height=45&lines=Computer+Science+student+(19)+focused+on+backend+engineering.;Building+scalable+systems+and+clean+architecture.;Exploring+distributed+systems+and+real-time+applications." />
+  <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=500&size=20&duration=3000&pause=1000&color=00FF41&center=true&vCenter=true&repeat=true&width=600&height=45&lines=Computer+Science+student+(19)+focused+on+backend+engineering.;Building+scalable+systems+and+clean+architecture.;Exploring+distributed+systems+and+real-time+applications." />
 </a>
 
 <br><br>
 
-<img src="https://raw.githubusercontent.com/raximnuraliyev/raximnuraliyev/main/assets/status.svg" />
+<img src="https://raw.githubusercontent.com/raximnuraliyev/ajax-profile/main/assets/status.svg" />
 
 <br><br>
 
-<img src="https://komarev.com/ghpvc/?username=raximnuraliyev&color=00d4ff&style=flat-square&label=Profile+Views" />
+<img src="https://komarev.com/ghpvc/?username=raximnuraliyev&color=2ea043&style=flat-square&label=Profile+Views" />
 
 </div>
 
@@ -87,7 +87,7 @@ status: Building
 
 <!-- ═══════════════════════════ DIVIDER ═══════════════════════════ -->
 
-<img src="https://raw.githubusercontent.com/raximnuraliyev/raximnuraliyev/main/assets/neon-line.svg" width="100%" />
+<img src="https://raw.githubusercontent.com/raximnuraliyev/ajax-profile/main/assets/neon-line.svg" width="100%" />
 
 <br>
 
@@ -142,7 +142,7 @@ status: Building
 
 <!-- ═══════════════════════════ DIVIDER ═══════════════════════════ -->
 
-<img src="https://raw.githubusercontent.com/raximnuraliyev/raximnuraliyev/main/assets/neon-line.svg" width="100%" />
+<img src="https://raw.githubusercontent.com/raximnuraliyev/ajax-profile/main/assets/neon-line.svg" width="100%" />
 
 <br>
 
@@ -154,17 +154,17 @@ status: Building
 
 <br>
 
-<img src="https://github-readme-stats.vercel.app/api?username=raximnuraliyev&show_icons=true&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=00d4ff&icon_color=00d4ff&text_color=c9d1d9&ring_color=00d4ff" height="180" />
+<img src="https://github-readme-stats.vercel.app/api?username=raximnuraliyev&show_icons=true&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=39d353&icon_color=39d353&text_color=c9d1d9&ring_color=00ff41" height="180" />
 &nbsp;&nbsp;&nbsp;
-<img src="https://github-readme-stats.vercel.app/api/top-langs/?username=raximnuraliyev&layout=compact&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=00d4ff&text_color=c9d1d9" height="180" />
+<img src="https://github-readme-stats.vercel.app/api/top-langs/?username=raximnuraliyev&layout=compact&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=39d353&text_color=c9d1d9" height="180" />
 
 <br><br>
 
-<img src="https://streak-stats.demolab.com?user=raximnuraliyev&theme=github-dark-blue&hide_border=true&background=0d1117&stroke=21262d&ring=00d4ff&fire=00d4ff&currStreakLabel=00d4ff&sideLabels=58a6ff&dates=6e7681" />
+<img src="https://streak-stats.demolab.com?user=raximnuraliyev&theme=github-dark-blue&hide_border=true&background=0d1117&stroke=21262d&ring=00ff41&fire=39d353&currStreakLabel=39d353&sideLabels=2ea043&dates=6e7681" />
 
 <br><br>
 
-<img src="https://github-readme-activity-graph.vercel.app/graph?username=raximnuraliyev&bg_color=0d1117&color=58a6ff&line=00d4ff&point=e6edf3&area=true&area_color=00d4ff&hide_border=true&custom_title=Contribution%20Activity" width="95%" />
+<img src="https://github-readme-activity-graph.vercel.app/graph?username=raximnuraliyev&bg_color=0d1117&color=39d353&line=00ff41&point=e6edf3&area=true&area_color=00ff41&hide_border=true&custom_title=Contribution%20Activity" width="95%" />
 
 </div>
 
@@ -172,7 +172,7 @@ status: Building
 
 <!-- ═══════════════════════════ DIVIDER ═══════════════════════════ -->
 
-<img src="https://raw.githubusercontent.com/raximnuraliyev/raximnuraliyev/main/assets/heartbeat.svg" width="100%" />
+<img src="https://raw.githubusercontent.com/raximnuraliyev/ajax-profile/main/assets/heartbeat.svg" width="100%" />
 
 <br>
 
@@ -185,9 +185,9 @@ status: Building
 <br>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/raximnuraliyev/raximnuraliyev/output/github-snake-dark.svg" />
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/raximnuraliyev/raximnuraliyev/output/github-snake.svg" />
-  <img alt="Snake animation" src="https://raw.githubusercontent.com/raximnuraliyev/raximnuraliyev/output/github-snake-dark.svg" width="100%" />
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/raximnuraliyev/ajax-profile/output/github-snake-dark.svg" />
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/raximnuraliyev/ajax-profile/output/github-snake.svg" />
+  <img alt="Snake animation" src="https://raw.githubusercontent.com/raximnuraliyev/ajax-profile/output/github-snake-dark.svg" width="100%" />
 </picture>
 
 </div>
@@ -202,7 +202,7 @@ status: Building
 
 <br>
 
-<img src="https://raw.githubusercontent.com/raximnuraliyev/raximnuraliyev/main/assets/isometric-calendar.svg" width="70%" />
+<img src="https://raw.githubusercontent.com/raximnuraliyev/ajax-profile/main/assets/isometric-calendar.svg" width="70%" />
 
 </div>
 
@@ -210,7 +210,7 @@ status: Building
 
 <!-- ═══════════════════════════ DIVIDER ═══════════════════════════ -->
 
-<img src="https://raw.githubusercontent.com/raximnuraliyev/raximnuraliyev/main/assets/neon-line.svg" width="100%" />
+<img src="https://raw.githubusercontent.com/raximnuraliyev/ajax-profile/main/assets/neon-line.svg" width="100%" />
 
 <br>
 
@@ -238,7 +238,7 @@ status: Building
 Uncomment after configuring WakaTime:
 
 <div align="center">
-  <img src="https://github-readme-stats.vercel.app/api/wakatime?username=raximnuraliyev&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=00d4ff&text_color=c9d1d9" />
+  <img src="https://github-readme-stats.vercel.app/api/wakatime?username=raximnuraliyev&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=39d353&text_color=c9d1d9" />
 </div>
 -->
 
@@ -247,7 +247,7 @@ Uncomment after configuring WakaTime:
 <br>
 
 <div align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:00d4ff,50:161b22,100:0d1117&height=120&section=footer" width="100%" />
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:00ff41,50:161b22,100:0d1117&height=120&section=footer" width="100%" />
 </div>
 
 <div align="center">
@@ -274,5 +274,3 @@ Uncomment after configuring WakaTime:
   6. WakaTime stats: Sign up at wakatime.com, install the IDE plugin,
      then uncomment the WakaTime section above.
 -->
-#   a j a x - p r o f i l e  
- 

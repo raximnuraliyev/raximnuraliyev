@@ -1,24 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="180" height="28" viewBox="0 0 180 28" fill="none">
   <text x="0" y="18" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" fill="#6e7681">status</text>
   <text x="46" y="18" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" fill="#484f58">:</text>
-  <text x="54" y="18" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" fill="#00d4ff">active</text>
-  <rect x="108" y="10" width="3" height="8" rx="1.5" fill="#00d4ff" opacity="0.7">
+  <text x="54" y="18" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" fill="#00ff41">active</text>
+  <rect x="108" y="10" width="3" height="8" rx="1.5" fill="#00ff41" opacity="0.7">
     <animate attributeName="height" values="8;18;8" dur="0.7s" repeatCount="indefinite"/>
     <animate attributeName="y" values="10;5;10" dur="0.7s" repeatCount="indefinite"/>
   </rect>
-  <rect x="115" y="8" width="3" height="12" rx="1.5" fill="#00d4ff" opacity="0.7">
+  <rect x="115" y="8" width="3" height="12" rx="1.5" fill="#00ff41" opacity="0.7">
     <animate attributeName="height" values="12;20;12" dur="0.9s" repeatCount="indefinite"/>
     <animate attributeName="y" values="8;4;8" dur="0.9s" repeatCount="indefinite"/>
   </rect>
-  <rect x="122" y="12" width="3" height="6" rx="1.5" fill="#00d4ff" opacity="0.7">
+  <rect x="122" y="12" width="3" height="6" rx="1.5" fill="#00ff41" opacity="0.7">
     <animate attributeName="height" values="6;16;6" dur="0.6s" repeatCount="indefinite"/>
     <animate attributeName="y" values="12;6;12" dur="0.6s" repeatCount="indefinite"/>
   </rect>
-  <rect x="129" y="9" width="3" height="10" rx="1.5" fill="#00d4ff" opacity="0.7">
+  <rect x="129" y="9" width="3" height="10" rx="1.5" fill="#00ff41" opacity="0.7">
     <animate attributeName="height" values="10;22;10" dur="1.1s" repeatCount="indefinite"/>
     <animate attributeName="y" values="9;3;9" dur="1.1s" repeatCount="indefinite"/>
   </rect>
-  <rect x="136" y="11" width="3" height="7" rx="1.5" fill="#00d4ff" opacity="0.7">
+  <rect x="136" y="11" width="3" height="7" rx="1.5" fill="#00ff41" opacity="0.7">
     <animate attributeName="height" values="7;14;7" dur="0.8s" repeatCount="indefinite"/>
     <animate attributeName="y" values="11;7;11" dur="0.8s" repeatCount="indefinite"/>
   </rect>
