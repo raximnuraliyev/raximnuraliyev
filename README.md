@@ -274,3 +274,5 @@ Uncomment after configuring WakaTime:
   6. WakaTime stats: Sign up at wakatime.com, install the IDE plugin,
      then uncomment the WakaTime section above.
 -->
+#   a j a x - p r o f i l e  
+ 
