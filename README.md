@@ -69,7 +69,7 @@ status: Building
 <br>
 
 <a href="https://linkedin.com/in/rakhim-nuraliyev">
-  <img src="https://img.shields.io/badge/LinkedIn-rakhim--nuraliyev-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white&labelColor=0d1117" />
+  <img src="https://img.shields.io/badge/www.linkedin.com/in/rakhimnuraliyev?style=for-the-badge&logo=linkedin&logoColor=white&labelColor=0d1117" />
 </a>
 <a href="mailto:unityhub1149@gmail.com">
   <img src="https://img.shields.io/badge/Email-unityhub1149-EA4335?style=for-the-badge&logo=gmail&logoColor=white&labelColor=0d1117" />
