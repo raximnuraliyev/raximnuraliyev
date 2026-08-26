@@ -1,12 +1,12 @@
 <!--
   ┌──────────────────────────────────────────────┐
-  │  @raximnuraliyev · engineered, not assembled           │
+  │  @raximnuraliyev                                      │
   └──────────────────────────────────────────────┘
 -->
 
-<!-- ═══════════════════════════ HEADER ═══════════════════════════ -->
+<!-- HEADER -->
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:112d22,100:238636&height=150&section=header&text=Rakhim%20Nuraliyev&fontSize=44&fontColor=e6edf3&fontAlignY=62&animation=fadeIn&desc=engineered%2C%20not%20assembled&descAlignY=82&descSize=14&descColor=3fb950" width="100%" />
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:112d22,100:238636&height=140&section=header&text=Rakhim%20Nuraliyev&fontSize=44&fontColor=e6edf3&fontAlignY=68&animation=fadeIn" width="100%" />
 
 <div align="center">
 
@@ -22,11 +22,9 @@
 
 <br>
 
-<!-- ═══════════════════════════ PROFILE YAML ═══════════════════════════ -->
+<!-- PROFILE YAML -->
 
 ```yaml
-# ──────────────────────── profile.yml ────────────────────────
-
 name:      Rakhim Nuraliyev
 education: PDP University — B.S. Software Development
 age:       19
@@ -46,7 +44,7 @@ events:
 
 <br>
 
-<!-- ═══════════════════════════ DIVIDER ═══════════════════════════ -->
+<!-- DIVIDER -->
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/dark.png" width="100%" />
@@ -54,7 +52,7 @@ events:
 
 <br>
 
-<!-- ═══════════════════════════ DIRECT MESSAGES ═══════════════════════════ -->
+<!-- DIRECT MESSAGES -->
 
 <div align="center">
 
@@ -82,7 +80,7 @@ events:
 
 <br>
 
-<!-- ═══════════════════════════ DIVIDER ═══════════════════════════ -->
+<!-- DIVIDER -->
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/dark.png" width="100%" />
@@ -90,7 +88,7 @@ events:
 
 <br>
 
-<!-- ═══════════════════════════ TECH SKILLS ═══════════════════════════ -->
+<!-- TECH SKILLS -->
 
 <div align="center">
 
@@ -98,7 +96,32 @@ events:
 
 <br><br>
 
-<img src="https://skillicons.dev/icons?i=dotnet,nodejs,postgres,mongodb,blender,figma,unity&theme=dark&perline=7" />
+<!-- Row 1: Dev stack -->
+<sub><sup>DEV</sup></sub>
+
+<br>
+
+<img src="https://skillicons.dev/icons?i=dotnet,nodejs,postgres,mongodb,git&theme=dark&perline=5" />
+
+<br><br>
+
+<!-- Row 2: Creative tools -->
+<sub><sup>CREATIVE</sup></sub>
+
+<br>
+
+<img src="https://skillicons.dev/icons?i=krita,blender,figma,unity&theme=dark&perline=4" />
+
+<br><br>
+
+<!-- Row 3: Workflow / not in skillicons -->
+<a href="https://en.wikipedia.org/wiki/Agile_software_development">
+  <img src="https://img.shields.io/badge/Agile%20%7C%20Scrum-0052CC?style=flat-square&logo=atlassian&logoColor=white&labelColor=161b22" height="28" />
+</a>
+&nbsp;
+<a href="https://www.blackmagicdesign.com/products/davinciresolve">
+  <img src="https://img.shields.io/badge/DaVinci%20Resolve-233A51?style=flat-square&logo=davinciresolve&logoColor=white&labelColor=161b22" height="28" />
+</a>
 
 <br><br>
 
@@ -114,13 +137,15 @@ events:
   <kbd>Game Dev</kbd>
   &nbsp;
   <kbd>UI/UX</kbd>
+  &nbsp;
+  <kbd>Video Editing</kbd>
 </sub>
 
 </div>
 
 <br>
 
-<!-- ═══════════════════════════ DIVIDER ═══════════════════════════ -->
+<!-- DIVIDER -->
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/dark.png" width="100%" />
@@ -128,7 +153,7 @@ events:
 
 <br>
 
-<!-- ═══════════════════════════ DYNAMIC STATS ═══════════════════════════ -->
+<!-- DYNAMIC STATS -->
 
 <div align="center">
 
@@ -154,19 +179,19 @@ events:
 <tr>
   <td width="50%" align="center" valign="middle">
     <a href="https://www.goodreads.com/user/show/202996478-ajax">
-      <img src="https://books-readme-stats.vercel.app/api/book?user=202996478-ajax&theme=dark" height="175" />
+      <img src="./assets/goodreads_card.svg" height="135" />
     </a>
   </td>
   <td width="50%" align="center" valign="middle">
     <a href="https://www.last.fm/user/ajaxmanson">
-      <img src="https://lastfm-recently-played.vercel.app/api?user=ajaxmanson&loved=1&width=400" height="175" />
+      <img src="https://lastfm-recently-played.vercel.app/api?user=ajaxmanson&loved=1&width=400" height="135" />
     </a>
   </td>
 </tr>
 <tr>
   <td colspan="2" align="center" valign="middle">
     <a href="https://letterboxd.com/ajax_rn">
-      <img src="https://letterboxd-card.onrender.com/ajax_rn/recent?width=740&theme=dark" height="175" />
+      <img src="./assets/letterboxd_card.svg" width="90%" />
     </a>
   </td>
 </tr>
@@ -174,6 +199,6 @@ events:
 
 <br>
 
-<!-- ═══════════════════════════ FOOTER ═══════════════════════════ -->
+<!-- FOOTER -->
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:238636,50:112d22,100:0d1117&height=90&section=footer" width="100%" />
