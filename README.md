@@ -61,7 +61,7 @@ events:
 <br><br>
 <a href="https://www.goodreads.com/user/show/202996478-ajax"><img src="./assets/goodreads_card.svg" width="100%" /></a>
 <br><br>
-<a href="https://www.last.fm/user/ajaxmanson"><img src="https://lastfm-recently-played.vercel.app/api?user=ajaxmanson&loved=1&width=800" width="100%" /></a>
+<a href="https://www.last.fm/user/ajaxmanson"><img src="./assets/lastfm_card.svg" width="100%" /></a>
 <br><br>
 <a href="https://letterboxd.com/ajax_rn"><img src="./assets/letterboxd_card.svg" width="100%" /></a>
 
