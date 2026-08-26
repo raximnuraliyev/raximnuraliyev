@@ -11,7 +11,7 @@
 <div align="center">
 
 <a href="https://git.io/typing-svg">
-  <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=500&size=14&duration=2800&pause=900&color=3FB950&center=true&vCenter=true&repeat=true&width=600&height=26&lines=SWE+Intern+%40+UIC+Games+%7C+Full-Stack+%40+BOGATIR+Textile;PDP+University+%E2%80%94+B.S.+Software+Development;Builder+%C2%B7+Hacker+%C2%B7+Creator+%C2%B7+Competitor" />
+  <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=500&size=14&duration=3000&pause=1200&color=3FB950&center=true&vCenter=true&repeat=true&width=580&height=26&lines=SWE+Intern+%40+UIC+Games+%7C+Full-Stack+%40+BOGATIR+Textile;PDP+University+%E2%80%94+B.S.+Software+Development" />
 </a>
 
 <br>
@@ -88,58 +88,41 @@ events:
 
 <br>
 
-<!-- TECH SKILLS -->
+<!-- STACK SECTION -->
 
 <div align="center">
 
-<sub><b>tools of the trade</b></sub>
+<sub><b>stack</b></sub>
 
 <br><br>
 
-<!-- Row 1: Dev stack -->
-<sub><sup>DEV</sup></sub>
-
-<br>
-
-<img src="https://skillicons.dev/icons?i=dotnet,nodejs,postgres,mongodb,git&theme=dark&perline=5" />
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/dotnetcore/dotnetcore-original.svg" width="48" height="48" alt=".NET" title=".NET" />
+&nbsp;&nbsp;
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg" width="48" height="48" alt="Node.js" title="Node.js" />
+&nbsp;&nbsp;
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg" width="48" height="48" alt="PostgreSQL" title="PostgreSQL" />
+&nbsp;&nbsp;
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mongodb/mongodb-original.svg" width="48" height="48" alt="MongoDB" title="MongoDB" />
+&nbsp;&nbsp;
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg" width="48" height="48" alt="Git" title="Git" />
+&nbsp;&nbsp;
+<img src="./assets/krita_icon.png" width="48" height="48" alt="Krita" title="Krita" />
+&nbsp;&nbsp;
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/blender/blender-original.svg" width="48" height="48" alt="Blender" title="Blender" />
+&nbsp;&nbsp;
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/figma/figma-original.svg" width="48" height="48" alt="Figma" title="Figma" />
+&nbsp;&nbsp;
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/unity/unity-original.svg" width="48" height="48" alt="Unity" title="Unity" />
 
 <br><br>
 
-<!-- Row 2: Creative tools -->
-<sub><sup>CREATIVE</sup></sub>
-
-<br>
-
-<img src="https://skillicons.dev/icons?i=krita,blender,figma,unity&theme=dark&perline=4" />
-
-<br><br>
-
-<!-- Row 3: Workflow / not in skillicons -->
-<a href="https://en.wikipedia.org/wiki/Agile_software_development">
-  <img src="https://img.shields.io/badge/Agile%20%7C%20Scrum-0052CC?style=flat-square&logo=atlassian&logoColor=white&labelColor=161b22" height="28" />
+<a href="https://www.blackmagicdesign.com/products/davinciresolve">
+  <img src="https://img.shields.io/badge/DaVinci%20Resolve-233A51?style=flat-square&logo=davinciresolve&logoColor=white&labelColor=161b22" height="26" />
 </a>
 &nbsp;
-<a href="https://www.blackmagicdesign.com/products/davinciresolve">
-  <img src="https://img.shields.io/badge/DaVinci%20Resolve-233A51?style=flat-square&logo=davinciresolve&logoColor=white&labelColor=161b22" height="28" />
+<a href="https://en.wikipedia.org/wiki/Agile_software_development">
+  <img src="https://img.shields.io/badge/Agile%20%7C%20Scrum-0052CC?style=flat-square&logo=atlassian&logoColor=white&labelColor=161b22" height="26" />
 </a>
-
-<br><br>
-
-<sub>
-  <kbd>Backend</kbd>
-  &nbsp;
-  <kbd>Full-Stack</kbd>
-  &nbsp;
-  <kbd>2D · Pixel Art</kbd>
-  &nbsp;
-  <kbd>3D Modeling</kbd>
-  &nbsp;
-  <kbd>Game Dev</kbd>
-  &nbsp;
-  <kbd>UI/UX</kbd>
-  &nbsp;
-  <kbd>Video Editing</kbd>
-</sub>
 
 </div>
 
@@ -153,45 +136,43 @@ events:
 
 <br>
 
-<!-- DYNAMIC STATS -->
+<!-- STATS -->
 
 <div align="center">
-
 <sub><b>stats &amp; activity</b></sub>
-
 </div>
 
 <br>
 
-<table width="100%" border="0" cellspacing="0" cellpadding="12">
+<table width="100%" border="0" cellspacing="0" cellpadding="10">
 <tr>
   <td width="50%" align="center" valign="middle">
     <a href="https://leetcode.com/ajax_rn">
-      <img src="https://leetcard.jacoblin.cool/ajax_rn?theme=dark&font=JetBrains%20Mono&border=0&radius=4&ext=contest" height="195" />
+      <img src="https://leetcard.jacoblin.cool/ajax_rn?theme=dark&font=JetBrains%20Mono&border=0&radius=4" width="390" />
     </a>
   </td>
   <td width="50%" align="center" valign="middle">
     <a href="https://codeforces.com/profile/ajax_rn">
-      <img src="https://codeforces-readme-stats.vercel.app/api/card?username=ajax_rn&theme=github_dark&hide_border=true" height="195" />
+      <img src="https://codeforces-readme-stats.vercel.app/api/card?username=ajax_rn&theme=github_dark&hide_border=true" width="390" />
     </a>
   </td>
 </tr>
 <tr>
   <td width="50%" align="center" valign="middle">
     <a href="https://www.goodreads.com/user/show/202996478-ajax">
-      <img src="./assets/goodreads_card.svg" height="135" />
+      <img src="./assets/goodreads_card.svg" width="390" />
     </a>
   </td>
   <td width="50%" align="center" valign="middle">
     <a href="https://www.last.fm/user/ajaxmanson">
-      <img src="https://lastfm-recently-played.vercel.app/api?user=ajaxmanson&loved=1&width=400" height="135" />
+      <img src="https://lastfm-recently-played.vercel.app/api?user=ajaxmanson&loved=1&width=450" width="390" />
     </a>
   </td>
 </tr>
 <tr>
   <td colspan="2" align="center" valign="middle">
     <a href="https://letterboxd.com/ajax_rn">
-      <img src="./assets/letterboxd_card.svg" width="90%" />
+      <img src="./assets/letterboxd_card.svg" width="100%" />
     </a>
   </td>
 </tr>
