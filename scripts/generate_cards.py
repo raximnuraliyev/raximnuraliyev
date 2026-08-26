@@ -185,41 +185,62 @@ def letterboxd_card():
 
 # ── LAST.FM (TOP TRACKS) ───────────────────────────────────
 def lastfm_card():
-    html = fetch_html("https://www.last.fm/user/ajaxmanson")
+    API_KEY = "b25b959554ed76058ac220b7b2e0a026"
+    url = f"http://ws.audioscrobbler.com/2.0/?method=user.gettoptracks&user=ajaxmanson&api_key={API_KEY}&period=1month&format=json&limit=5"
+    
     tracks = []
-    for c in html.split('<section'):
-        if 'Top Tracks' in c:
-            rows = re.findall(r'<tr.*?>(.*?)</tr>', c, re.DOTALL)
-            for r in rows[:5]:
-                tn = re.search(r'class="chartlist-name".*?<a.*?>(.*?)</a>', r, re.DOTALL)
-                an = re.search(r'class="chartlist-artist".*?<a.*?title="(.*?)".*?>', r, re.DOTALL)
-                img = re.search(r'<img.*?src="(.*?)".*?>', r, re.DOTALL)
-                if tn:
-                    t = tn.group(1).strip()
-                    a = an.group(1).strip() if an else ""
-                    i = img.group(1).strip() if img else ""
-                    if 'avatar' in i or 'default' in i:
-                        i = "" # skip default avatars if possible
-                    b64 = get_b64_image(i) if i else ""
-                    tracks.append((trunc(t, 55), trunc(a, 40), b64))
-            break
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=20) as r:
+            import json
+            data = json.loads(r.read())
+            for track in data.get("toptracks", {}).get("track", []):
+                t = track.get("name", "")
+                a = track.get("artist", {}).get("name", "")
+                
+                img_url = ""
+                images = track.get("image", [])
+                for img in images:
+                    if img.get("size") == "large" or img.get("size") == "extralarge":
+                        img_url = img.get("#text", img_url)
+                
+                b64 = get_b64_image(img_url) if img_url else ""
+                playcount = int(track.get("playcount", 0))
+                
+                tracks.append((trunc(t, 45), trunc(a, 35), b64, playcount))
+    except Exception:
+        pass
 
     if not tracks:
-        tracks = [("No top tracks found", "", "")]
+        tracks = [("No top tracks found", "", "", 0)]
+
+    max_scrobbles = max(tracks, key=lambda x: x[3])[3] if tracks and tracks[0][3] > 0 else 1
 
     W, ROW_H, Y0 = 800, 70, 60
     H = Y0 + len(tracks) * ROW_H + 20
     rows = ""
-    for i, (t, a, img) in enumerate(tracks):
+    for i, (t, a, img, count) in enumerate(tracks):
         y = Y0 + i * ROW_H
         if img:
             rows += f'<image x="20" y="{y+10}" width="50" height="50" preserveAspectRatio="xMidYMid slice" href="{img}"/>'
         else:
             rows += f'<rect x="20" y="{y+10}" width="50" height="50" fill="#21262d"/>'
-
+            
         rows += f'<text x="85" y="{y+32}" font-family="Segoe UI,Arial,sans-serif" font-size="15" fill="{TEXT_PRI}" font-weight="600">{t}</text>'
         if a:
             rows += f'<text x="85" y="{y+52}" font-family="Segoe UI,Arial,sans-serif" font-size="13" fill="{TEXT_MUT}">{a}</text>'
+            
+        # Scrobble Bar
+        if count > 0:
+            # Max bar width is 300px, starting at W - 320
+            bar_max = 300
+            bar_width = max(30, int((count / max_scrobbles) * bar_max))
+            bar_x = W - 20 - bar_width
+            
+            rows += f'<rect x="{bar_x}" y="{y+20}" width="{bar_width}" height="30" rx="4" fill="#bd2f2f"/>'
+            
+            count_text = f"{count} scrobbles" if i == 0 else f"{count}"
+            rows += f'<text x="{bar_x + 10}" y="{y+40}" font-family="Segoe UI,Arial,sans-serif" font-size="13" fill="#ffffff" font-weight="600">{count_text}</text>'
 
         if i < len(tracks)-1:
             rows += f'<line x1="20" y1="{y+ROW_H}" x2="{W-20}" y2="{y+ROW_H}" stroke="{BORDER}" stroke-width="1" opacity="0.6"/>'
@@ -230,8 +251,7 @@ def lastfm_card():
         f'<rect width="{W-2}" height="{H-2}" x="1" y="1" rx="0" fill="none" stroke="{BORDER}" stroke-width="1"/>'
         f'<rect width="{W}" height="36" rx="0" fill="{BG2}"/>'
         f'<rect y="28" width="{W}" height="8" fill="{BG2}"/>'
-        # Last.fm brand color is #D51007
-        f'<text x="20" y="23" font-family="Segoe UI,Arial,sans-serif" font-size="10" fill="#D51007" letter-spacing="1.2" font-weight="700">TOP TRACKS (LAST 7 DAYS) \u00b7 last.fm/user/ajaxmanson</text>'
+        f'<text x="20" y="23" font-family="Segoe UI,Arial,sans-serif" font-size="10" fill="#D51007" letter-spacing="1.2" font-weight="700">TOP TRACKS (LAST 30 DAYS) \u00b7 last.fm/user/ajaxmanson</text>'
         f'<line x1="20" y1="36" x2="{W-20}" y2="36" stroke="{BORDER}" stroke-width="1"/>'
         f'{rows}'
         f'<line x1="20" y1="{H-18}" x2="{W-20}" y2="{H-18}" stroke="{BORDER}" stroke-width="1"/>'
