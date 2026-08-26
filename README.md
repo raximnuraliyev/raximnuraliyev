@@ -56,9 +56,8 @@ events:
 
 ### Stats
 
-<a href="https://leetcode.com/ajax_rn"><img src="https://leetcard.jacoblin.cool/ajax_rn?theme=dark&font=JetBrains%20Mono&border=0&radius=0&ext=contest" width="100%" /></a>
-<br><br>
-<a href="https://codeforces.com/profile/ajax_rn"><img src="https://codeforces-readme-stats.vercel.app/api/card?username=ajax_rn&theme=github_dark&hide_border=true&border_radius=0" width="100%" /></a>
+<a href="https://leetcode.com/ajax_rn"><img src="https://leetcard.jacoblin.cool/ajax_rn?theme=dark&font=JetBrains%20Mono&border=0&radius=0&ext=contest" width="49%" /></a>
+<a href="https://codeforces.com/profile/ajax_rn"><img src="https://codeforces-readme-stats.vercel.app/api/card?username=ajax_rn&theme=github_dark&hide_border=true&border_radius=0" width="49%" /></a>
 <br><br>
 <a href="https://www.goodreads.com/user/show/202996478-ajax"><img src="./assets/goodreads_card.svg" width="100%" /></a>
 <br><br>
