@@ -18,7 +18,7 @@ education: PDP University — B.S. Software Development
 age:       19
 
 experience:
-  - { role: Software Engineering Intern,  org: UIC Games        }
+  - { role: Software Engineering Intern,   org: UIC Games        }
   - { role: Full-Stack Developer,          org: BOGATIR Textile  }
 
 events:
