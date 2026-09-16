@@ -183,20 +183,20 @@ def letterboxd_card():
         f'</svg>'
     )
 
-# ── LAST.FM (TOP TRACKS) ───────────────────────────────────
+# ── LAST.FM (RECENT TRACKS) ───────────────────────────────────
 def lastfm_card():
     API_KEY = "b25b959554ed76058ac220b7b2e0a026"
-    url = f"http://ws.audioscrobbler.com/2.0/?method=user.gettoptracks&user=ajaxmanson&api_key={API_KEY}&period=1month&format=json&limit=5"
+    url = f"http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=ajaxmanson&api_key={API_KEY}&format=json&limit=5"
     
     tracks = []
     try:
         req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0"})
         with urllib.request.urlopen(req, timeout=20) as r:
-            import json
+            import json, datetime
             data = json.loads(r.read())
-            for track in data.get("toptracks", {}).get("track", []):
+            for track in data.get("recenttracks", {}).get("track", []):
                 t = track.get("name", "")
-                a = track.get("artist", {}).get("name", "")
+                a = track.get("artist", {}).get("#text", "")
                 
                 img_url = ""
                 images = track.get("image", [])
@@ -205,21 +205,30 @@ def lastfm_card():
                         img_url = img.get("#text", img_url)
                 
                 b64 = get_b64_image(img_url) if img_url else ""
-                playcount = int(track.get("playcount", 0))
                 
-                tracks.append((trunc(t, 45), trunc(a, 35), b64, playcount))
+                # Parse timestamp (apply UTC+5 for user's local timezone)
+                time_str = ""
+                if "@attr" in track and track["@attr"].get("nowplaying") == "true":
+                    time_str = "Listening now"
+                elif "date" in track and "uts" in track["date"]:
+                    uts = int(track["date"]["uts"])
+                    dt = datetime.datetime.fromtimestamp(uts, datetime.timezone.utc) + datetime.timedelta(hours=5)
+                    d = str(dt.day)
+                    b = dt.strftime('%b')
+                    tm = dt.strftime('%I:%M%p').lstrip('0').lower()
+                    time_str = f"{d} {b} {tm}"
+                
+                tracks.append((trunc(t, 45), trunc(a, 35), b64, time_str))
     except Exception:
         pass
 
     if not tracks:
-        tracks = [("No top tracks found", "", "", 0)]
-
-    max_scrobbles = max(tracks, key=lambda x: x[3])[3] if tracks and tracks[0][3] > 0 else 1
+        tracks = [("No recent tracks found", "", "", "")]
 
     W, ROW_H, Y0 = 800, 70, 60
     H = Y0 + len(tracks) * ROW_H + 20
     rows = ""
-    for i, (t, a, img, count) in enumerate(tracks):
+    for i, (t, a, img, time_str) in enumerate(tracks):
         y = Y0 + i * ROW_H
         if img:
             rows += f'<image x="20" y="{y+10}" width="50" height="50" preserveAspectRatio="xMidYMid slice" href="{img}"/>'
@@ -230,17 +239,9 @@ def lastfm_card():
         if a:
             rows += f'<text x="85" y="{y+52}" font-family="Segoe UI,Arial,sans-serif" font-size="13" fill="{TEXT_MUT}">{a}</text>'
             
-        # Scrobble Bar
-        if count > 0:
-            # Max bar width is 300px, starting at W - 320
-            bar_max = 300
-            bar_width = max(30, int((count / max_scrobbles) * bar_max))
-            bar_x = W - 20 - bar_width
-            
-            rows += f'<rect x="{bar_x}" y="{y+20}" width="{bar_width}" height="30" rx="4" fill="#bd2f2f"/>'
-            
-            count_text = f"{count} scrobbles" if i == 0 else f"{count}"
-            rows += f'<text x="{bar_x + 10}" y="{y+40}" font-family="Segoe UI,Arial,sans-serif" font-size="13" fill="#ffffff" font-weight="600">{count_text}</text>'
+        # Timestamp text on the right
+        if time_str:
+            rows += f'<text x="{W-20}" y="{y+32}" text-anchor="end" font-family="Segoe UI,Arial,sans-serif" font-size="13" fill="{TEXT_MUT}">{esc(time_str)}</text>'
 
         if i < len(tracks)-1:
             rows += f'<line x1="20" y1="{y+ROW_H}" x2="{W-20}" y2="{y+ROW_H}" stroke="{BORDER}" stroke-width="1" opacity="0.6"/>'
@@ -251,7 +252,7 @@ def lastfm_card():
         f'<rect width="{W-2}" height="{H-2}" x="1" y="1" rx="0" fill="none" stroke="{BORDER}" stroke-width="1"/>'
         f'<rect width="{W}" height="36" rx="0" fill="{BG2}"/>'
         f'<rect y="28" width="{W}" height="8" fill="{BG2}"/>'
-        f'<text x="20" y="23" font-family="Segoe UI,Arial,sans-serif" font-size="10" fill="#D51007" letter-spacing="1.2" font-weight="700">TOP TRACKS (LAST 30 DAYS) \u00b7 last.fm/user/ajaxmanson</text>'
+        f'<text x="20" y="23" font-family="Segoe UI,Arial,sans-serif" font-size="10" fill="#D51007" letter-spacing="1.2" font-weight="700">RECENT TRACKS \u00b7 last.fm/user/ajaxmanson</text>'
         f'<line x1="20" y1="36" x2="{W-20}" y2="36" stroke="{BORDER}" stroke-width="1"/>'
         f'{rows}'
         f'<line x1="20" y1="{H-18}" x2="{W-20}" y2="{H-18}" stroke="{BORDER}" stroke-width="1"/>'
