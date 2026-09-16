@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import re, urllib.request, base64
+import re, urllib.request, urllib.parse, base64, json
 from datetime import datetime
 from pathlib import Path
 from xml.etree import ElementTree as ET
@@ -183,67 +183,68 @@ def letterboxd_card():
         f'</svg>'
     )
 
-# ── LAST.FM (RECENT TRACKS) ───────────────────────────────────
+# ── LAST.FM (TOP TAGS) ───────────────────────────────────
 def lastfm_card():
     API_KEY = "b25b959554ed76058ac220b7b2e0a026"
-    url = f"http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=ajaxmanson&api_key={API_KEY}&format=json&limit=5"
+    url = f"http://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=ajaxmanson&api_key={API_KEY}&period=1month&format=json&limit=15"
     
-    tracks = []
+    tag_counts = {}
     try:
         req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0"})
         with urllib.request.urlopen(req, timeout=20) as r:
-            import json, datetime
             data = json.loads(r.read())
-            for track in data.get("recenttracks", {}).get("track", []):
-                t = track.get("name", "")
-                a = track.get("artist", {}).get("#text", "")
-                
-                img_url = ""
-                images = track.get("image", [])
-                for img in images:
-                    if img.get("size") == "large" or img.get("size") == "extralarge":
-                        img_url = img.get("#text", img_url)
-                
-                b64 = get_b64_image(img_url) if img_url else ""
-                
-                # Parse timestamp (apply UTC+5 for user's local timezone)
-                time_str = ""
-                if "@attr" in track and track["@attr"].get("nowplaying") == "true":
-                    time_str = "Listening now"
-                elif "date" in track and "uts" in track["date"]:
-                    uts = int(track["date"]["uts"])
-                    dt = datetime.datetime.fromtimestamp(uts, datetime.timezone.utc) + datetime.timedelta(hours=5)
-                    d = str(dt.day)
-                    b = dt.strftime('%b')
-                    tm = dt.strftime('%I:%M%p').lstrip('0').lower()
-                    time_str = f"{d} {b} {tm}"
-                
-                tracks.append((trunc(t, 45), trunc(a, 35), b64, time_str))
-    except Exception:
+            artists = data.get("topartists", {}).get("artist", [])
+            
+            for a in artists:
+                name = a.get("name")
+                scrobbles = int(a.get("playcount", 0))
+                a_url = f"http://ws.audioscrobbler.com/2.0/?method=artist.gettoptags&artist={urllib.parse.quote(name)}&api_key={API_KEY}&format=json"
+                try:
+                    a_req = urllib.request.Request(a_url, headers={"User-Agent":"Mozilla/5.0"})
+                    with urllib.request.urlopen(a_req, timeout=10) as ar:
+                        a_data = json.loads(ar.read())
+                        tags = a_data.get("toptags", {}).get("tag", [])
+                        for t in tags[:3]:
+                            tag_name = t.get("name").lower()
+                            tag_counts[tag_name] = tag_counts.get(tag_name, 0) + scrobbles
+                except Exception as e:
+                    print('inner error:', e)
+                    pass
+    except Exception as e:
+        print('outer error:', e)
         pass
 
-    if not tracks:
-        tracks = [("No recent tracks found", "", "", "")]
+    sorted_tags = sorted(tag_counts.items(), key=lambda x: x[1], reverse=True)[:5]
+    if not sorted_tags:
+        sorted_tags = [("No tags found", 1)]
 
-    W, ROW_H, Y0 = 800, 70, 60
-    H = Y0 + len(tracks) * ROW_H + 20
+    max_score = sorted_tags[0][1] if sorted_tags[0][1] > 0 else 1
+
+    W, ROW_H, Y0 = 800, 50, 60
+    H = Y0 + len(sorted_tags) * ROW_H + 20
     rows = ""
-    for i, (t, a, img, time_str) in enumerate(tracks):
+    
+    colors = ["#b182ff", "#6fdfaf", "#4a9cf6", "#6114a8", "#203e7e"]
+    
+    for i, (tag, score) in enumerate(sorted_tags):
         y = Y0 + i * ROW_H
-        if img:
-            rows += f'<image x="20" y="{y+10}" width="50" height="50" preserveAspectRatio="xMidYMid slice" href="{img}"/>'
-        else:
-            rows += f'<rect x="20" y="{y+10}" width="50" height="50" fill="#21262d"/>'
-            
-        rows += f'<text x="85" y="{y+32}" font-family="Segoe UI,Arial,sans-serif" font-size="15" fill="{TEXT_PRI}" font-weight="600">{t}</text>'
-        if a:
-            rows += f'<text x="85" y="{y+52}" font-family="Segoe UI,Arial,sans-serif" font-size="13" fill="{TEXT_MUT}">{a}</text>'
-            
-        # Timestamp text on the right
-        if time_str:
-            rows += f'<text x="{W-20}" y="{y+32}" text-anchor="end" font-family="Segoe UI,Arial,sans-serif" font-size="13" fill="{TEXT_MUT}">{esc(time_str)}</text>'
+        color = colors[i % len(colors)]
+        
+        # Label
+        rows += f'<text x="20" y="{y+32}" font-family="Segoe UI,Arial,sans-serif" font-size="16" fill="{TEXT_PRI}" font-weight="600" text-transform="uppercase">{esc(tag)}</text>'
+        
+        # Bar
+        bar_max = 500
+        bar_width = max(20, int((score / max_score) * bar_max))
+        bar_x = W - 20 - bar_max
+        
+        rows += f'<rect x="{bar_x}" y="{y+15}" width="{bar_max}" height="24" rx="4" fill="#21262d"/>'
+        rows += f'<rect x="{bar_x}" y="{y+15}" width="{bar_width}" height="24" rx="4" fill="{color}"/>'
+        
+        # Score Text (optional, can just show relative bars, but a number looks nice)
+        rows += f'<text x="{bar_x + 10}" y="{y+32}" font-family="Segoe UI,Arial,sans-serif" font-size="12" fill="#ffffff" font-weight="700">~{score} pts</text>'
 
-        if i < len(tracks)-1:
+        if i < len(sorted_tags)-1:
             rows += f'<line x1="20" y1="{y+ROW_H}" x2="{W-20}" y2="{y+ROW_H}" stroke="{BORDER}" stroke-width="1" opacity="0.6"/>'
 
     return (
@@ -252,7 +253,7 @@ def lastfm_card():
         f'<rect width="{W-2}" height="{H-2}" x="1" y="1" rx="0" fill="none" stroke="{BORDER}" stroke-width="1"/>'
         f'<rect width="{W}" height="36" rx="0" fill="{BG2}"/>'
         f'<rect y="28" width="{W}" height="8" fill="{BG2}"/>'
-        f'<text x="20" y="23" font-family="Segoe UI,Arial,sans-serif" font-size="10" fill="#D51007" letter-spacing="1.2" font-weight="700">RECENT TRACKS \u00b7 last.fm/user/ajaxmanson</text>'
+        f'<text x="20" y="23" font-family="Segoe UI,Arial,sans-serif" font-size="10" fill="#D51007" letter-spacing="1.2" font-weight="700">TOP TAGS (LAST 30 DAYS) \u00b7 last.fm/user/ajaxmanson</text>'
         f'<line x1="20" y1="36" x2="{W-20}" y2="36" stroke="{BORDER}" stroke-width="1"/>'
         f'{rows}'
         f'<line x1="20" y1="{H-18}" x2="{W-20}" y2="{H-18}" stroke="{BORDER}" stroke-width="1"/>'
