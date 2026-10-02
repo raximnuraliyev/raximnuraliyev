@@ -108,6 +108,24 @@ def side_rules(h, l=(0, None), r=(0, None)):
                 f'stroke="{LINE}" stroke-width=".5"/>')
     return out
 
+def vignette_defs(cx=.6, cy=.42):
+    """Mask that dissolves a photo's edges into the canvas (use mask="url(#vig)")."""
+    return (f'<radialGradient id="vigG" cx="{cx}" cy="{cy}" r=".62">'
+            '<stop offset=".45" stop-color="#fff"/><stop offset="1" stop-color="#000"/></radialGradient>'
+            '<mask id="vig" maskContentUnits="objectBoundingBox">'
+            '<rect width="1" height="1" fill="url(#vigG)"/></mask>')
+
+# little looping motions shared by several slices
+SWAY  = (".sway{transform-box:fill-box;transform-origin:50% 0;animation:sway 6s ease-in-out infinite}"
+         "@keyframes sway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}")
+BOB   = (".bob{animation:bob 4.5s ease-in-out infinite}"
+         "@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}")
+BLINK = (".blink{transform-box:fill-box;transform-origin:50% 50%;animation:blink 8s ease-in-out infinite}"
+         "@keyframes blink{0%,45%,51%,100%{transform:scaleY(1)}48%{transform:scaleY(.06)}}")
+DANGLE = (".dangle{animation:dangle 7s ease-in-out infinite}"
+          "@keyframes dangle{0%,100%{transform:translateY(0)}40%{transform:translateY(34px)}"
+          "55%{transform:translateY(30px)}}")
+
 def diamond(cx, cy, r=3.5, fill=LINE_LT):
     return f'<path d="M{cx} {cy-r} L{cx+r} {cy} L{cx} {cy+r} L{cx-r} {cy} Z" fill="{fill}"/>'
 
@@ -175,8 +193,6 @@ HEADER_CSS = """
      animation:float 5.5s ease-in-out infinite,flicker 9s linear infinite}
 .halo{animation:halo 4.5s ease-in-out infinite}
 .drip{transform-box:fill-box;transform-origin:50% 0;animation:drip 5s cubic-bezier(.55,0,.9,.5) infinite}
-.fly{animation:fly 16s ease-in-out infinite}
-.flap{transform-box:fill-box;transform-origin:50% 50%;animation:flap .9s ease-in-out infinite alternate}
 .moon{animation:moon 8s ease-in-out infinite}
 @keyframes rise{from{opacity:0;transform:translateY(22px);filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
 @keyframes float{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-3px) rotate(-2deg)}
@@ -185,9 +201,6 @@ HEADER_CSS = """
 @keyframes halo{0%,100%{opacity:.18}50%{opacity:.5}}
 @keyframes drip{0%{transform:translateY(0) scaleY(.4);opacity:0}12%{opacity:1;transform:translateY(0) scaleY(1)}
   55%{transform:translateY(3px) scaleY(1.6);opacity:1}100%{transform:translateY(46px) scaleY(1);opacity:0}}
-@keyframes fly{0%,100%{transform:translate(0,0)}25%{transform:translate(40px,-14px)}
-  50%{transform:translate(85px,4px)}75%{transform:translate(38px,16px)}}
-@keyframes flap{from{transform:scaleY(1)}to{transform:scaleY(.72)}}
 @keyframes moon{0%,100%{opacity:.85}50%{opacity:1}}
 """
 
@@ -233,13 +246,11 @@ def header_banner():
         '</linearGradient>'
         '<mask id="castleFade"><rect x="0" y="0" width="800" height="560" fill="url(#sink)"/></mask>'
     )
-    winged = img("winged", 300, 170, 120, extra='class="flap"')
     defs += '<filter id="glow" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="5"/></filter>'
     return (
         svg_open(H, font=True, defs=defs, css=HEADER_CSS)
         + f'<circle class="moon" cx="430" cy="250" r="230" fill="url(#moon)"/>'
         + f'<g mask="url(#castleFade)">{img("castle", 170, 120, 420)}</g>'
-        + f'<g class="fly">{winged}</g>'
         + side_rules(H, l=(300, None))
         + img("frame_top", 0, 0, W, FRAME_TOP_H)
         + haunted_name("RAKHIM NURALIYEV", 462)
@@ -270,14 +281,15 @@ def info_card():
         ("", "PAYNET x ITPU Hackathon  # Team Mars"),
         ("  2025:", "GDG DevFest Uzbekistan"),
     ]
-    PX, PY, PW, PH = 130, 78, 520, 240
+    PX, PY, PW, PH = 70, 78, 580, 240
     out = (
-        svg_open(H, font=True)
-        + img("bats", -10, 40, 150, opacity=.45)
+        svg_open(H, font=True, defs=vignette_defs(.5, .4))
+        + img("bats", -24, 60, 92, opacity=.4)
         + side_rules(H, l=(0, None), r=(FRAME_TOP_H - HEADER_H, None))
         + img("frame_top", 0, -HEADER_H, W, FRAME_TOP_H)
         + heading(52, "Profile")
         + panel(PX, PY, PW, PH)
+        + img("george_russell", 486, PY + 6, 160, extra='mask="url(#vig)"')
         + img("sticker_63", 664, 262, 88, opacity=.85)
     )
     for i, (key, val) in enumerate(lines_data):
@@ -334,9 +346,12 @@ def stack_card():
     cols, cw, ch, gx, gy = 4, 146, 36, 14, 14
     rows = (len(STACK) + cols - 1) // cols
     x0 = (W - (cols * cw + (cols - 1) * gx)) // 2
-    y0 = 92
+    y0 = 108
     H = y0 + rows * (ch + gy) + 26
-    out = svg_open(H, font=True) + side_rules(H) + heading(56, "The Apothecary")
+    out = (svg_open(H, font=True, css=SWAY + BOB) + side_rules(H)
+           + f'<g class="sway">{img("spiderweb", 44, 0, 76, opacity=.75)}</g>'
+           + f'<g class="bob">{img("ghost", 642, 14, 50)}</g>'
+           + heading(64, "The Apothecary"))
     for i, name in enumerate(STACK):
         r, c = divmod(i, cols)
         x, y = x0 + c * (cw + gx), y0 + r * (ch + gy)
@@ -349,53 +364,24 @@ def stack_card():
 
 
 # ═══════════════════════════════════════════════════════════
-#  THE SHRINE — cut-out portraits and ink keepsakes
-# ═══════════════════════════════════════════════════════════
-def shrine_card():
-    H = 900
-    defs = (
-        '<linearGradient id="sinkV" x1="0" y1="0" x2="0" y2="1">'
-        '<stop offset=".62" stop-color="#fff"/><stop offset="1" stop-color="#000"/>'
-        '</linearGradient>'
-        '<mask id="fadeBottom" maskContentUnits="objectBoundingBox">'
-        '<rect width="1" height="1" fill="url(#sinkV)"/></mask>'
-    )
-    css = (".blink{transform-box:fill-box;transform-origin:50% 50%;animation:blink 7s ease-in-out infinite}"
-           "@keyframes blink{0%,44%,52%,100%{transform:scaleY(1);opacity:.6}48%{transform:scaleY(.08);opacity:.3}}"
-           ".sway{transform-box:fill-box;transform-origin:50% 0;animation:sway 6s ease-in-out infinite}"
-           "@keyframes sway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}")
-    fade = 'mask="url(#fadeBottom)"'
-    return (
-        svg_open(H, font=True, defs=defs, css=css) + side_rules(H)
-        + f'<g class="sway">{img("spiderweb", 44, 0, 150, opacity=.8)}</g>'
-        + img("billie_letter", 610, 58, 140, opacity=.5)
-        + heading(52, "The Shrine")
-        # eyes watching from the dark, blinking now and then
-        + img("eyes", 255, 74, 290, extra='class="blink"')
-        # row one
-        + img("billie_portrait", 128, 248, 248, extra=fade)
-        + img("billie_glow", 404, 252, 268, extra=fade)
-        + img("blohsh", 700, 400, 46, opacity=.8)
-        + img("signature", 470, 492, 190, opacity=.8)
-        + f'<line x1="150" y1="548" x2="650" y2="548" stroke="url(#fade)"/>{diamond(400, 548)}'
-        # row two
-        + img("newt_1", 112, 562, 256, extra=fade)
-        + img("newt_2", 400, 566, 290, extra=fade)
-        + img("you_with_me", 310, 806, 180, opacity=.85)
-        + '</svg>'
-    )
-
-
-# ═══════════════════════════════════════════════════════════
-#  THE ARCHIVES — garland title
+#  THE ARCHIVES — title among the keepsakes
 # ═══════════════════════════════════════════════════════════
 def archives_title():
-    H = 290
+    H = 250
+    defs = ('<linearGradient id="sinkV" x1="0" y1="0" x2="0" y2="1">'
+            '<stop offset=".55" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient>'
+            '<mask id="fadeBottom" maskContentUnits="objectBoundingBox">'
+            '<rect width="1" height="1" fill="url(#sinkV)"/></mask>')
+    spider = (f'<g class="dangle"><line x1="252" y1="-60" x2="252" y2="52" stroke="{TEXT_SEC}" stroke-width=".7"/>'
+              f'{img("spider", 226, 44, 52)}</g>')
     return (
-        svg_open(H, font=True) + side_rules(H)
-        + img("snake", 56, 40, 104, opacity=.9)
-        + img("pumpkin_garland", 180, 6, 440)
-        + heading(272, "The Archives")
+        svg_open(H, font=True, defs=defs, css=DANGLE) + side_rules(H)
+        + img("snake", 62, 26, 92, opacity=.9)
+        + spider
+        + img("billie_glow", 548, 14, 170, extra='mask="url(#fadeBottom)"')
+        + img("blohsh", 724, 120, 26, opacity=.8)
+        + img("you_with_me", 300, 108, 150, opacity=.75)
+        + heading(232, "The Archives")
         + '</svg>'
     )
 
@@ -425,6 +411,7 @@ def goodreads_card():
     H = Y0 + len(books) * ROW_H + 52
     out = (svg_open(H) + side_rules(H)
            + panel(PX, 22, PW, H - 44)
+           + img("billie_letter", PX + PW - 290, 70, 150, opacity=.16)
            + card_title(PX + 22, 54, "CURRENTLY READING")
            + img("snoopy", PX + PW - 118, 6, 104)
            + f'<line x1="{PX+22}" y1="66" x2="{PX+PW-130}" y2="66" stroke="{LINE}" stroke-width=".6"/>')
@@ -475,7 +462,10 @@ def lastfm_card():
     PX, PW, ROW_H, Y0 = 80, 640, 46, 82
     H = Y0 + len(tags) * ROW_H + 52
     shades = ["#E8E2D6", "#C2BCB0", "#9A948A", "#7A756D", "#5E5A54"]
-    out = (svg_open(H) + side_rules(H)
+    ew = PW - 2
+    eh = round(ew * png_size("eyes")[1] / png_size("eyes")[0])
+    out = (svg_open(H, css=BLINK) + side_rules(H)
+           + img("eyes", PX + 1, 22 + (H - 44 - eh) / 2, ew, eh, opacity=.45, extra='class="blink"')
            + panel(PX, 22, PW, H - 44)
            + card_title(PX + 22, 54, "TOP TAGS · LAST 30 DAYS")
            + img("spotify_code", PX + PW - 186, 34, 166)
@@ -526,11 +516,13 @@ def letterboxd_card():
     H = Y0 + len(films) * ROW_H + 52
     crawl = ("@keyframes crawl{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(14px) rotate(3deg)}}"
              ".crawl{transform-box:fill-box;transform-origin:50% 0;animation:crawl 3.2s ease-in-out infinite}")
-    out = (svg_open(H, css=crawl) + side_rules(H)
+    nh = min(H - 46, 330)
+    nw = round(nh * png_size("newt_1")[0] / png_size("newt_1")[1])
+    out = (svg_open(H, css=crawl, defs=vignette_defs(.62, .38)) + side_rules(H)
            + f'<g class="crawl">{img("centipede", 24, 70, 38)}</g>'
+           + img("newt_1", PX + PW - nw - 4, H - 23 - nh, nw, nh, opacity=.42, extra='mask="url(#vig)"')
            + panel(PX, 22, PW, H - 44)
            + card_title(PX + 22, 54, "RECENTLY WATCHED")
-           + img("ghost", PX + PW - 92, 8, 70)
            + f'<line x1="{PX+22}" y1="66" x2="{PX+PW-110}" y2="66" stroke="{LINE}" stroke-width=".6"/>')
     for i, (film, stars, poster) in enumerate(films):
         y = Y0 + i * ROW_H
@@ -564,6 +556,7 @@ def footer_banner():
           f'fill="{TEXT_SEC}" letter-spacing="5" font-style="italic">crafted with dark magic</text>'
         + f'<ellipse cx="400" cy="250" rx="300" ry="70" fill="url(#fog)"/>'
         + img("graveyard", 130, 205, 540)
+        + img("signature", 590, 150, 100, opacity=.7)
         + img("frame_bottom", 0, 0, W, FRAME_BOT_H)
         + '</svg>'
     )
@@ -580,7 +573,6 @@ if __name__ == "__main__":
         "social_pad_l.svg":   social_pad("left"),
         "social_pad_r.svg":   social_pad("right"),
         "stack_card.svg":     stack_card(),
-        "shrine_card.svg":    shrine_card(),
         "archives_title.svg": archives_title(),
         "goodreads_card.svg": goodreads_card(),
         "lastfm_card.svg":    lastfm_card(),

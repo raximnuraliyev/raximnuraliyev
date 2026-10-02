@@ -144,20 +144,6 @@ def sticker(src, name, tol, max_w=260):
     save(rgb, alpha, name, max_w=max_w)
 
 
-# ── Garland: paper is cut into pockets by the string, so key it out
-#    everywhere; relight the black string/bats/spiders so they read ──
-def garland():
-    rgb = load("pumpkin_garland.jpg")
-    L = lum(rgb)
-    sat = rgb.max(2) - rgb.min(2)
-    alpha = drop_specks(np.clip((242 - L) / 40, 0, 1) * (1 - (sat < 20) * (L > 225)), 0.002)
-    orange = nd.binary_dilation((sat > 80) & (rgb[..., 0] > 150), iterations=5)
-    ink = (sat < 50) & ~orange
-    col = rgb.copy()
-    col[ink] = np.array([168, 162, 152], np.float32)
-    save(col, alpha, "pumpkin_garland.png", max_w=600)
-
-
 # ── Ink drawings: black on paper -> silver ink on transparent ─────
 def ink(src, name, white=225, black=60, color=SILVER, max_w=360):
     rgb = load(src)
@@ -214,19 +200,17 @@ if __name__ == "__main__":
     sticker("ghost.jpg", "ghost.png", 238)
     sticker("snoopy_reading.jpg", "snoopy.png", 232)
     sticker("spotify_code.jpg", "spotify_code.png", 236, max_w=320)
-    garland()
     ink("billie_letter.jpg", "billie_letter.png", max_w=300)
     ink("you_with_me.jpg", "you_with_me.png", max_w=220)
     ink("signature.jpg", "signature.png", max_w=260)
     ink("sticker_63.jpg", "sticker_63.png", white=200, max_w=220)
-    ink("winged.jpg", "winged.png", max_w=260)
+    ink("spider.jpg", "spider.png", white=200, max_w=200)
     ink("snake.jpg", "snake.png", white=215, max_w=260)
     ink("blohsh.jpg", "blohsh.png", max_w=120)
     ink("centipede.jpg", "centipede.png", max_w=140)
     ink("spiderweb.jpg", "spiderweb.png", white=222, max_w=300)
     photo("newt_1.jpg", "newt_1.png")
-    photo("newt_2.jpg", "newt_2.png")
-    photo("billie_portrait.jpg", "billie_portrait.png")
+    photo("george_russell.jpg", "george_russell.png", max_w=320)
     glow_portrait("billie_glow.jpg", "billie_glow.png")
     eyes()
     print("done.")
