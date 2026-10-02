@@ -59,6 +59,40 @@ def creepster_face():
     except OSError:
         return ""
 
+FELL = "'IM Fell English', Georgia, serif"
+
+def fell_faces():
+    """IM Fell English (OFL), trimmed to the glyphs the header uses."""
+    out = ""
+    for style, f in (("normal", "imfell-rm.ttf"), ("italic", "imfell-it.ttf")):
+        try:
+            b = base64.b64encode((ASSETS / "fonts" / f).read_bytes()).decode()
+        except OSError:
+            continue
+        out += (f"@font-face{{font-family:'IM Fell English';font-style:{style};"
+                f"src:url(data:font/ttf;base64,{b}) format('truetype');}}")
+    return out
+
+def lighten(hex_color, min_lum=0.32):
+    """Brand colours too dark to glow on the canvas get mixed toward white."""
+    r, g, b = (int(hex_color[i:i+2], 16) for i in (1, 3, 5))
+    lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+    if lum >= min_lum:
+        return hex_color
+    t = (min_lum - lum) / (1 - lum) + 0.15
+    r, g, b = (round(c + (255 - c) * t) for c in (r, g, b))
+    return f"#{r:02X}{g:02X}{b:02X}"
+
+def glow_css(period):
+    """Items fade up in their brand colour, hold, then sink back to grey.
+    Stagger them with animation-delay to get a wave. (GitHub renders README
+    SVGs as images, so there's no hover — this lights them up on its own.)"""
+    return (f".lit{{opacity:0;animation:lit {period}s ease-in-out infinite}}"
+            "@keyframes lit{0%{opacity:0}7%,17%{opacity:1}28%,100%{opacity:0}}")
+
+GLOW_FILTER = ('<filter id="bloom" x="-30%" y="-60%" width="160%" height="220%">'
+               '<feGaussianBlur stdDeviation="4"/></filter>')
+
 def esc(s):
     return str(s).replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace('"',"&quot;")
 
@@ -248,17 +282,17 @@ def header_banner():
     )
     defs += '<filter id="glow" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="5"/></filter>'
     return (
-        svg_open(H, font=True, defs=defs, css=HEADER_CSS)
+        svg_open(H, font=True, defs=defs, css=fell_faces() + HEADER_CSS)
         + f'<circle class="moon" cx="430" cy="250" r="230" fill="url(#moon)"/>'
         + f'<g mask="url(#castleFade)">{img("castle", 170, 120, 420)}</g>'
         + side_rules(H, l=(300, None))
         + img("frame_top", 0, 0, W, FRAME_TOP_H)
         + haunted_name("RAKHIM NURALIYEV", 462)
         + f'<line x1="250" y1="482" x2="550" y2="482" stroke="url(#fade)"/>{diamond(400, 482)}'
-        + f'<text x="{W//2}" y="506" text-anchor="middle" font-family="{SERIF}" font-size="13" '
-          f'fill="{TEXT_SEC}" font-style="italic" letter-spacing="1.5">SWE Intern @ UIC Games · Full-Stack @ BOGATIR Textile</text>'
-        + f'<text x="{W//2}" y="536" text-anchor="middle" font-family="{SERIF}" font-size="9.5" '
-          f'fill="{TEXT_DIM}" letter-spacing="6">SOFTWARE ENGINEER · GAME DEV · CREATIVE</text>'
+        + f'<text x="{W//2}" y="508" text-anchor="middle" font-family="{FELL}" font-size="16" '
+          f'fill="{TEXT_SEC}" font-style="italic" letter-spacing=".6">SWE Intern @ UIC Games · Full-Stack @ BOGATIR Textile</text>'
+        + f'<text x="{W//2}" y="538" text-anchor="middle" font-family="{FELL}" font-size="11.5" '
+          f'fill="#7A756D" letter-spacing="5">SOFTWARE ENGINEER · GAME DEV · CREATIVE</text>'
         + '</svg>'
     )
 
@@ -306,12 +340,13 @@ def info_card():
 #  SOCIAL ROW — six slices that sit side by side (12.5/18.75%)
 # ═══════════════════════════════════════════════════════════
 SOCIAL_H = 90
-SOCIALS = [
-    ("gmail",    "GMAIL",    "write a letter"),
-    ("telegram", "TELEGRAM", "send a raven"),
-    ("discord",  "DISCORD",  "join the seance"),
-    ("linkedin", "LINKEDIN", "the guild hall"),
+SOCIALS = [   # key, label, subtitle, brand colour
+    ("gmail",    "GMAIL",    "write a letter",  "#EA4335"),
+    ("telegram", "TELEGRAM", "send a raven",    "#229ED9"),
+    ("discord",  "DISCORD",  "join the seance", "#5865F2"),
+    ("linkedin", "LINKEDIN", "the guild hall",  "#0A66C2"),
 ]
+SOCIAL_PERIOD = 8   # seconds for the glow to travel across all four
 
 def social_pad(side):
     w = 100
@@ -323,24 +358,35 @@ def social_pad(side):
           f'<line x1="{rx+dx}" y1="0" x2="{rx+dx}" y2="{SOCIAL_H}" stroke="{LINE}" stroke-width=".5"/>')
     return s + '</svg>'
 
-def social_button(label, sub):
+def social_button(label, sub, color, index):
     w = 150
+    c = lighten(color)
+    title = (f'<text x="{w/2}" y="44" text-anchor="middle" font-family="{SERIF}" font-size="13" '
+             f'letter-spacing="3" fill="{{}}">{label}</text>')
     s = (f'<svg width="{w}" height="{SOCIAL_H}" viewBox="0 0 {w} {SOCIAL_H}" xmlns="http://www.w3.org/2000/svg">'
+         f'<defs>{GLOW_FILTER}<style>{glow_css(SOCIAL_PERIOD)}{REDUCED_MOTION}</style></defs>'
          f'<rect width="{w}" height="{SOCIAL_H}" fill="{BG}"/>')
     s += panel(10, 18, w - 20, 54)
-    s += (f'<text x="{w/2}" y="44" text-anchor="middle" font-family="{SERIF}" font-size="13" '
-          f'fill="{TEXT_PRI}" letter-spacing="3">{label}</text>'
-          f'<text x="{w/2}" y="61" text-anchor="middle" font-family="{SERIF}" font-size="9" '
+    s += (title.format(TEXT_PRI)
+          + f'<text x="{w/2}" y="61" text-anchor="middle" font-family="{SERIF}" font-size="9" '
           f'fill="{TEXT_SEC}" font-style="italic" letter-spacing="1">{sub}</text>')
+    # the lit state: bloom + brand-coloured edge + brand-coloured title
+    s += (f'<g class="lit" style="animation-delay:{index * SOCIAL_PERIOD / len(SOCIALS):.2f}s">'
+          f'<rect x="10" y="18" width="{w-20}" height="54" fill="{c}" fill-opacity=".10" stroke="{c}" stroke-width="3" filter="url(#bloom)"/>'
+          f'<rect x="10" y="18" width="{w-20}" height="54" fill="none" stroke="{c}" stroke-width="1.2"/>'
+          + title.format(c) + '</g>')
     return s + '</svg>'
 
 
 # ═══════════════════════════════════════════════════════════
 #  THE APOTHECARY — tech stack as labelled vials
 # ═══════════════════════════════════════════════════════════
-STACK = [".NET", "Node.js", "PostgreSQL", "MongoDB",
-         "Git", "Unity", "Blender", "Krita",
-         "Figma", "DaVinci Resolve", "Agile", "Scrum"]
+STACK = [  # name, brand colour
+    (".NET", "#512BD4"), ("Node.js", "#5FA04E"), ("PostgreSQL", "#4169E1"), ("MongoDB", "#47A248"),
+    ("Git", "#F05032"), ("Unity", "#FFFFFF"), ("Blender", "#E87D0D"), ("Krita", "#3BABFF"),
+    ("Figma", "#F24E1E"), ("DaVinci Resolve", "#233A51"), ("Agile", "#0052CC"), ("Scrum", "#6DB33F"),
+]
+STACK_STEP = 0.8   # seconds between one vial lighting and the next
 
 def stack_card():
     cols, cw, ch, gx, gy = 4, 146, 36, 14, 14
@@ -350,19 +396,30 @@ def stack_card():
     H = y0 + rows * (ch + gy) + 26
     ellie_h = H - 6
     ellie_w = round(ellie_h * png_size("ellie")[0] / png_size("ellie")[1])
-    out = (svg_open(H, font=True, css=SWAY + BOB, defs=vignette_defs(.5, .4)) + side_rules(H)
+    period = round(STACK_STEP * len(STACK), 2)
+    out = (svg_open(H, font=True, css=SWAY + BOB + glow_css(period),
+                    defs=vignette_defs(.5, .4) + GLOW_FILTER) + side_rules(H)
            + img("ellie", (W - ellie_w) / 2, 6, ellie_w, ellie_h, opacity=.28, extra='mask="url(#vig)"')
            + f'<g class="sway">{img("spiderweb", 44, 0, 76, opacity=.75)}</g>'
            + f'<g class="bob">{img("ghost", 642, 14, 50)}</g>'
            + heading(64, "The Apothecary"))
-    for i, name in enumerate(STACK):
+    # light them in reading order, but hop around a little so it feels alive
+    order = [0, 5, 2, 7, 4, 9, 6, 11, 8, 1, 10, 3]
+    for i, (name, brand) in enumerate(STACK):
         r, c = divmod(i, cols)
         x, y = x0 + c * (cw + gx), y0 + r * (ch + gy)
+        col = lighten(brand)
+        label = (f'<text x="{x+cw/2+6}" y="{y+ch/2+4.5}" text-anchor="middle" font-family="{SERIF}" '
+                 f'font-size="12.5" letter-spacing="1" fill="{{}}">{esc(name)}</text>')
         out += (f'<rect x="{x}" y="{y}" width="{cw}" height="{ch}" rx="3" fill="none" stroke="{LINE}" stroke-width="1"/>'
                 f'<rect x="{x+3}" y="{y+3}" width="{cw-6}" height="{ch-6}" rx="2" fill="none" stroke="{LINE}" stroke-width=".5" stroke-dasharray="1,3"/>'
-                f'{diamond(x+14, y+ch/2, 2.5, PUMPKIN if i % 5 == 0 else LINE_LT)}'
-                f'<text x="{x+cw/2+6}" y="{y+ch/2+4.5}" text-anchor="middle" font-family="{SERIF}" '
-                f'font-size="12.5" fill="{TEXT_PRI}" letter-spacing="1">{esc(name)}</text>')
+                f'{diamond(x+14, y+ch/2, 2.5, LINE_LT)}'
+                + label.format(TEXT_PRI)
+                + f'<g class="lit" style="animation-delay:{order.index(i) * STACK_STEP:.2f}s">'
+                f'<rect x="{x}" y="{y}" width="{cw}" height="{ch}" rx="3" fill="{col}" fill-opacity=".12" stroke="{col}" stroke-width="3" filter="url(#bloom)"/>'
+                f'<rect x="{x}" y="{y}" width="{cw}" height="{ch}" rx="3" fill="none" stroke="{col}" stroke-width="1.1"/>'
+                f'{diamond(x+14, y+ch/2, 2.8, col)}'
+                + label.format(col) + '</g>')
     return out + '</svg>'
 
 
@@ -584,8 +641,7 @@ def footer_banner():
           f'fill="{TEXT_SEC}" letter-spacing="5" font-style="italic">crafted with dark magic</text>'
         + f'<ellipse cx="400" cy="250" rx="300" ry="70" fill="url(#fog)"/>'
         + img("graveyard", 130, 205, 540)
-        + img("fireflies", 616, 8, 118, opacity=.85)
-        + img("signature", 604, 160, 104, opacity=.75)
+        + img("signature", 612, 60, 120, opacity=.75)
         + img("frame_bottom", 0, 0, W, FRAME_BOT_H)
         + '</svg>'
     )
@@ -609,8 +665,8 @@ if __name__ == "__main__":
         "letterboxd_card.svg": letterboxd_card(),
         "footer_banner.svg":  footer_banner(),
     }
-    for key, label, sub in SOCIALS:
-        out[f"social_{key}.svg"] = social_button(label, sub)
+    for i, (key, label, sub, color) in enumerate(SOCIALS):
+        out[f"social_{key}.svg"] = social_button(label, sub, color, i)
     for name, svg in out.items():
         if svg is None:
             # feed unreachable — keep yesterday's card rather than blanking it

@@ -194,8 +194,8 @@ if __name__ == "__main__":
     graveyard()
     sticker("ghost.jpg", "ghost.png", 238)
     sticker("snoopy_reading.jpg", "snoopy.png", 232)
-    # painted Spotify code card: no background to remove, just shrink it
-    card = Image.open(SRC / "spotify_code.webp").convert("RGB")
+    # painted Spotify code card: no background to remove — shrink it, black & white
+    card = Image.open(SRC / "spotify_code.webp").convert("L")
     card.resize((240, 300), Image.LANCZOS).save(OUT / "spotify_code.png", optimize=True)
     print(f"  {'spotify_code.png':22s} (240, 300)")
     ink("billie_letter.jpg", "billie_letter.png", max_w=300)
@@ -211,6 +211,5 @@ if __name__ == "__main__":
     photo("george_russell.jpg", "george_russell.png", max_w=320, tone=0.62)
     photo("ellie.jpg", "ellie.png", max_w=320, tone=0.62, keep=0.3, erase=[(505, 250, 736, 736)])
     ink("journal_3.jpg", "journal_3.png", white=215, max_w=220)
-    ink("fireflies.jpg", "fireflies.png", white=170, black=40, max_w=240)
     eyes()
     print("done.")
