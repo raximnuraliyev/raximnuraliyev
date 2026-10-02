@@ -348,7 +348,10 @@ def stack_card():
     x0 = (W - (cols * cw + (cols - 1) * gx)) // 2
     y0 = 108
     H = y0 + rows * (ch + gy) + 26
-    out = (svg_open(H, font=True, css=SWAY + BOB) + side_rules(H)
+    ellie_h = H - 6
+    ellie_w = round(ellie_h * png_size("ellie")[0] / png_size("ellie")[1])
+    out = (svg_open(H, font=True, css=SWAY + BOB, defs=vignette_defs(.5, .4)) + side_rules(H)
+           + img("ellie", (W - ellie_w) / 2, 6, ellie_w, ellie_h, opacity=.28, extra='mask="url(#vig)"')
            + f'<g class="sway">{img("spiderweb", 44, 0, 76, opacity=.75)}</g>'
            + f'<g class="bob">{img("ghost", 642, 14, 50)}</g>'
            + heading(64, "The Apothecary"))
@@ -364,27 +367,31 @@ def stack_card():
 
 
 # ═══════════════════════════════════════════════════════════
+#  YOU WITH ME — the one that matters most, front and centre
+# ═══════════════════════════════════════════════════════════
+def you_with_me_card():
+    H = 190
+    defs = ('<radialGradient id="halo" cx=".5" cy=".5" r=".5">'
+            '<stop offset="0" stop-color="#5A564D" stop-opacity=".55"/>'
+            f'<stop offset="1" stop-color="{BG}" stop-opacity="0"/></radialGradient>')
+    css = (".breathe{animation:breathe 5s ease-in-out infinite}"
+           "@keyframes breathe{0%,100%{opacity:.55}50%{opacity:1}}")
+    w = 320
+    h = round(w * png_size("you_with_me")[1] / png_size("you_with_me")[0])
+    return (
+        svg_open(H, defs=defs, css=css) + side_rules(H)
+        + f'<ellipse class="breathe" cx="400" cy="{H/2}" rx="260" ry="80" fill="url(#halo)"/>'
+        + img("you_with_me", (W - w) / 2, (H - h) / 2, w, h)
+        + '</svg>'
+    )
+
+
+# ═══════════════════════════════════════════════════════════
 #  THE ARCHIVES — title among the keepsakes
 # ═══════════════════════════════════════════════════════════
 def archives_title():
-    H = 250
-    defs = ('<linearGradient id="sinkV" x1="0" y1="0" x2="0" y2="1">'
-            '<stop offset=".55" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient>'
-            '<mask id="fadeBottom" maskContentUnits="objectBoundingBox">'
-            '<rect width="1" height="1" fill="url(#sinkV)"/></mask>')
-    spider = (f'<g class="dangle"><line x1="336" y1="-60" x2="336" y2="40" stroke="{TEXT_SEC}" stroke-width=".7"/>'
-              f'{img("spider", 312, 32, 48)}</g>')
-    ellie_h = 214
-    ellie_w = round(ellie_h * png_size("ellie")[0] / png_size("ellie")[1])
-    return (
-        svg_open(H, font=True, defs=defs, css=DANGLE) + side_rules(H)
-        + img("ellie", 70, 6, ellie_w, ellie_h, opacity=.6, extra='mask="url(#fadeBottom)"')
-        + spider
-        + img("fireflies", 586, 24, 112, opacity=.85)
-        + img("blohsh", 734, 10, 18, opacity=.8)
-        + heading(232, "The Archives")
-        + '</svg>'
-    )
+    H = 100
+    return svg_open(H, font=True) + side_rules(H) + heading(68, "The Archives") + '</svg>'
 
 
 # ═══════════════════════════════════════════════════════════
@@ -480,20 +487,22 @@ def lastfm_card():
            + '</g>'
            + panel(PX, 22, PW, H - 44)
            + card_title(PX + 22, 54, "TOP TAGS · LAST 30 DAYS")
-           + img("spotify_code", PX + PW - 186, 34, 166)
-           + f'<line x1="{PX+22}" y1="66" x2="{PX+PW-200}" y2="66" stroke="{LINE}" stroke-width=".6"/>')
+           + f'<rect x="{PX+PW-133}" y="33" width="114" height="142" fill="none" stroke="{LINE_LT}" stroke-width="1"/>'
+           + img("spotify_code", PX + PW - 132, 34, 112, 140)
+           + img("blohsh", 734, 40, 22, opacity=.8)
+           + f'<line x1="{PX+22}" y1="66" x2="{PX+PW-150}" y2="66" stroke="{LINE}" stroke-width=".6"/>')
     for i, (tag, score) in enumerate(tags):
         y = Y0 + i * ROW_H
         out += f'<text x="{PX+22}" y="{y+27}" font-family="{SERIF}" font-size="15" fill="{TEXT_PRI}">{esc(tag)}</text>'
         if not empty:
-            bar_max = 380
+            bar_max = 250
             bw = max(18, int(score / max_score * bar_max))
-            bx = PX + PW - 22 - bar_max
+            bx = PX + PW - 150 - bar_max
             out += (f'<rect x="{bx}" y="{y+13}" width="{bar_max}" height="16" rx="8" fill="none" stroke="{LINE}" stroke-width="1"/>'
                     f'<rect x="{bx}" y="{y+13}" width="{bw}" height="16" rx="8" fill="{shades[i % 5]}" opacity=".8"/>'
                     f'<text x="{bx+10}" y="{y+25}" font-family="{SERIF}" font-size="9" fill="{BG}" font-weight="700">~{score}</text>')
         if i < len(tags) - 1:
-            out += f'<line x1="{PX+22}" y1="{y+ROW_H-2}" x2="{PX+PW-22}" y2="{y+ROW_H-2}" stroke="{LINE}" stroke-width=".6" stroke-dasharray="2,5"/>'
+            out += f'<line x1="{PX+22}" y1="{y+ROW_H-2}" x2="{PX+PW-150}" y2="{y+ROW_H-2}" stroke="{LINE}" stroke-width=".6" stroke-dasharray="2,5"/>'
     return out + stamp(PX + PW - 14, H - 32) + '</svg>'
 
 
@@ -530,7 +539,10 @@ def letterboxd_card():
              ".crawl{transform-box:fill-box;transform-origin:50% 0;animation:crawl 3.2s ease-in-out infinite}")
     nh = min(H - 46, 330)
     nw = round(nh * png_size("newt_1")[0] / png_size("newt_1")[1])
-    out = (svg_open(H, css=crawl, defs=vignette_defs(.62, .38)) + side_rules(H)
+    spider = (f'<g class="dangle"><line x1="745" y1="-80" x2="745" y2="96" stroke="{TEXT_SEC}" stroke-width=".7"/>'
+              f'{img("spider", 727, 90, 36)}</g>')
+    out = (svg_open(H, css=crawl + DANGLE, defs=vignette_defs(.62, .38)) + side_rules(H)
+           + spider
            + f'<g class="crawl">{img("centipede", 24, 70, 38)}</g>'
            + img("newt_1", PX + PW - nw - 4, H - 23 - nh, nw, nh, opacity=.42, extra='mask="url(#vig)"')
            + panel(PX, 22, PW, H - 44)
@@ -572,9 +584,8 @@ def footer_banner():
           f'fill="{TEXT_SEC}" letter-spacing="5" font-style="italic">crafted with dark magic</text>'
         + f'<ellipse cx="400" cy="250" rx="300" ry="70" fill="url(#fog)"/>'
         + img("graveyard", 130, 205, 540)
-        + img("billie_glow", 612, 4, 140, extra='mask="url(#fadeBottom)"')
-        + img("signature", 604, 146, 104, opacity=.75)
-        + img("you_with_me", 126, 112, 96, opacity=.8)
+        + img("fireflies", 616, 8, 118, opacity=.85)
+        + img("signature", 604, 160, 104, opacity=.75)
         + img("frame_bottom", 0, 0, W, FRAME_BOT_H)
         + '</svg>'
     )
@@ -590,6 +601,7 @@ if __name__ == "__main__":
         "info_card.svg":      info_card(),
         "social_pad_l.svg":   social_pad("left"),
         "social_pad_r.svg":   social_pad("right"),
+        "you_with_me.svg":    you_with_me_card(),
         "stack_card.svg":     stack_card(),
         "archives_title.svg": archives_title(),
         "goodreads_card.svg": goodreads_card(),

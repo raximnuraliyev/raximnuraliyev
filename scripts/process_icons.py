@@ -173,14 +173,6 @@ def photo(src, name, max_w=420, tone=1.0, keep=0.02, erase=()):
     save(np.broadcast_to(grey, cut.shape[:2] + (3,)).copy(), alpha, name, max_w=max_w, grey=True)
 
 
-# ── Portrait on black: the black *is* the background, key it out ───
-def glow_portrait(src, name, max_w=360):
-    rgb = load(src)
-    L = lum(rgb)
-    alpha = drop_specks(np.clip((L - 35) / 90, 0, 1), 0.01)
-    save(solid(rgb.shape, BONE) * (L[..., None] / 255) ** 0.4, alpha, name, max_w=max_w)
-
-
 # ── Close-up eyes: nothing to cut away, so dissolve the edges ─────
 def eyes():
     rgb = load("eyes.jpg")
@@ -202,7 +194,10 @@ if __name__ == "__main__":
     graveyard()
     sticker("ghost.jpg", "ghost.png", 238)
     sticker("snoopy_reading.jpg", "snoopy.png", 232)
-    sticker("spotify_code.jpg", "spotify_code.png", 236, max_w=320)
+    # painted Spotify code card: no background to remove, just shrink it
+    card = Image.open(SRC / "spotify_code.webp").convert("RGB")
+    card.resize((240, 300), Image.LANCZOS).save(OUT / "spotify_code.png", optimize=True)
+    print(f"  {'spotify_code.png':22s} (240, 300)")
     ink("billie_letter.jpg", "billie_letter.png", max_w=300)
     ink("you_with_me.jpg", "you_with_me.png", max_w=220)
     ink("signature.jpg", "signature.png", max_w=260)
@@ -217,6 +212,5 @@ if __name__ == "__main__":
     photo("ellie.jpg", "ellie.png", max_w=320, tone=0.62, keep=0.3, erase=[(505, 250, 736, 736)])
     ink("journal_3.jpg", "journal_3.png", white=215, max_w=220)
     ink("fireflies.jpg", "fireflies.png", white=170, black=40, max_w=240)
-    glow_portrait("billie_glow.jpg", "billie_glow.png")
     eyes()
     print("done.")
