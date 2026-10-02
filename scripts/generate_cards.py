@@ -14,9 +14,9 @@ BORDER       = "#21262d"
 TEXT_PRI     = "#e6edf3"
 TEXT_MUT     = "#8b949e"
 TEXT_FAINT   = "#484f58"
-GREEN        = "#3fb950"
-RED          = "#e06c75"
-YELLOW       = "#f9c74f"
+GREEN        = "#e67e22"
+RED          = "#d35400"
+YELLOW       = "#f39c12"
 
 try:
     from datetime import timezone
@@ -224,7 +224,7 @@ def lastfm_card():
     H = Y0 + len(sorted_tags) * ROW_H + 20
     rows = ""
     
-    colors = ["#b182ff", "#6fdfaf", "#4a9cf6", "#6114a8", "#203e7e"]
+    colors = ["#c0392b", "#d35400", "#e67e22", "#d68910", "#a04000"]
     
     for i, (tag, score) in enumerate(sorted_tags):
         y = Y0 + i * ROW_H
@@ -254,7 +254,7 @@ def lastfm_card():
         f'<rect width="{W-2}" height="{H-2}" x="1" y="1" rx="0" fill="none" stroke="{BORDER}" stroke-width="1"/>'
         f'<rect width="{W}" height="36" rx="0" fill="{BG2}"/>'
         f'<rect y="28" width="{W}" height="8" fill="{BG2}"/>'
-        f'<text x="20" y="23" font-family="Segoe UI,Arial,sans-serif" font-size="10" fill="#D51007" letter-spacing="1.2" font-weight="700">TOP TAGS (LAST 30 DAYS) \u00b7 last.fm/user/ajaxmanson</text>'
+        f'<text x="20" y="23" font-family="Segoe UI,Arial,sans-serif" font-size="10" fill="#d35400" letter-spacing="1.2" font-weight="700">TOP TAGS (LAST 30 DAYS) \u00b7 last.fm/user/ajaxmanson</text>'
         f'<line x1="20" y1="36" x2="{W-20}" y2="36" stroke="{BORDER}" stroke-width="1"/>'
         f'{rows}'
         f'<line x1="20" y1="{H-18}" x2="{W-20}" y2="{H-18}" stroke="{BORDER}" stroke-width="1"/>'

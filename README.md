@@ -2,14 +2,14 @@
   @raximnuraliyev
 -->
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=112d22,238636,112d22&height=140&section=header&text=Rakhim%20Nuraliyev&fontSize=44&fontColor=e6edf3&fontAlignY=68&animation=fadeIn" width="100%" />
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=3a1304,b33900,d35400&height=140&section=header&text=Rakhim%20Nuraliyev&fontSize=44&fontColor=e6edf3&fontAlignY=68&animation=fadeIn" width="100%" />
 
 <div align="center">
 <a href="https://git.io/typing-svg">
-  <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=500&size=14&duration=3000&pause=1200&color=3FB950&center=true&vCenter=true&repeat=true&width=580&height=26&lines=SWE+Intern+%40+UIC+Games+%7C+Full-Stack+%40+BOGATIR+Textile;PDP+University+%E2%80%94+B.S.+Software+Development" />
+  <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=500&size=14&duration=3000&pause=1200&color=d35400&center=true&vCenter=true&repeat=true&width=580&height=26&lines=SWE+Intern+%40+UIC+Games+%7C+Full-Stack+%40+BOGATIR+Textile;PDP+University+%E2%80%94+B.S.+Software+Development" />
 </a>
 <br>
-<img src="https://hits.sh/github.com/raximnuraliyev/views.svg?style=for-the-badge&label=Profile%20Views&color=238636" />
+<img src="https://hits.sh/github.com/raximnuraliyev/views.svg?style=for-the-badge&label=Profile%20Views&color=b33900" />
 </div>
 
 ```yaml
@@ -68,4 +68,4 @@ events:
 
 </div>
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=112d22,238636,112d22&height=90&section=footer" width="100%" />
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=3a1304,b33900,d35400&height=90&section=footer" width="100%" />
