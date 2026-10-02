@@ -155,7 +155,8 @@ def ink(src, name, white=225, black=60, color=SILVER, max_w=360):
 
 
 # ── Photos: AI cut-out of the person, toned to monochrome ─────────
-def photo(src, name, max_w=420):
+def photo(src, name, max_w=420, tone=1.0, keep=0.02, erase=()):
+    """tone < 1 sinks bright whites toward the shadows (stark ink portraits)."""
     try:
         from rembg import remove, new_session
     except ImportError:
@@ -165,8 +166,10 @@ def photo(src, name, max_w=420):
     if "_rembg" not in globals():
         _rembg = new_session("u2net")
     cut = np.asarray(remove(Image.open(SRC / src).convert("RGB"), session=_rembg)).astype(np.float32)
-    grey = lum(cut[..., :3])[..., None]
-    alpha = drop_specks(cut[..., 3] / 255)
+    for x0, y0, x1, y1 in erase:          # stray bits the cut-out kept
+        cut[y0:y1, x0:x1, 3] = 0
+    grey = lum(cut[..., :3])[..., None] * tone
+    alpha = drop_specks(cut[..., 3] / 255, keep)
     save(np.broadcast_to(grey, cut.shape[:2] + (3,)).copy(), alpha, name, max_w=max_w, grey=True)
 
 
@@ -210,7 +213,10 @@ if __name__ == "__main__":
     ink("centipede.jpg", "centipede.png", max_w=140)
     ink("spiderweb.jpg", "spiderweb.png", white=222, max_w=300)
     photo("newt_1.jpg", "newt_1.png")
-    photo("george_russell.jpg", "george_russell.png", max_w=320)
+    photo("george_russell.jpg", "george_russell.png", max_w=320, tone=0.62)
+    photo("ellie.jpg", "ellie.png", max_w=320, tone=0.62, keep=0.3, erase=[(505, 250, 736, 736)])
+    ink("journal_3.jpg", "journal_3.png", white=215, max_w=220)
+    ink("fireflies.jpg", "fireflies.png", white=170, black=40, max_w=240)
     glow_portrait("billie_glow.jpg", "billie_glow.png")
     eyes()
     print("done.")

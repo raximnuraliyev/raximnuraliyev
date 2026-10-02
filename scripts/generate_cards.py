@@ -289,7 +289,7 @@ def info_card():
         + img("frame_top", 0, -HEADER_H, W, FRAME_TOP_H)
         + heading(52, "Profile")
         + panel(PX, PY, PW, PH)
-        + img("george_russell", 486, PY + 6, 160, extra='mask="url(#vig)"')
+        + img("george_russell", 486, PY + 6, 160, opacity=.6, extra='mask="url(#vig)"')
         + img("sticker_63", 664, 262, 88, opacity=.85)
     )
     for i, (key, val) in enumerate(lines_data):
@@ -372,15 +372,16 @@ def archives_title():
             '<stop offset=".55" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient>'
             '<mask id="fadeBottom" maskContentUnits="objectBoundingBox">'
             '<rect width="1" height="1" fill="url(#sinkV)"/></mask>')
-    spider = (f'<g class="dangle"><line x1="252" y1="-60" x2="252" y2="52" stroke="{TEXT_SEC}" stroke-width=".7"/>'
-              f'{img("spider", 226, 44, 52)}</g>')
+    spider = (f'<g class="dangle"><line x1="336" y1="-60" x2="336" y2="40" stroke="{TEXT_SEC}" stroke-width=".7"/>'
+              f'{img("spider", 312, 32, 48)}</g>')
+    ellie_h = 214
+    ellie_w = round(ellie_h * png_size("ellie")[0] / png_size("ellie")[1])
     return (
         svg_open(H, font=True, defs=defs, css=DANGLE) + side_rules(H)
-        + img("snake", 62, 26, 92, opacity=.9)
+        + img("ellie", 70, 6, ellie_w, ellie_h, opacity=.6, extra='mask="url(#fadeBottom)"')
         + spider
-        + img("billie_glow", 548, 14, 170, extra='mask="url(#fadeBottom)"')
-        + img("blohsh", 724, 120, 26, opacity=.8)
-        + img("you_with_me", 300, 108, 150, opacity=.75)
+        + img("fireflies", 586, 24, 112, opacity=.85)
+        + img("blohsh", 734, 10, 18, opacity=.8)
         + heading(232, "The Archives")
         + '</svg>'
     )
@@ -412,6 +413,7 @@ def goodreads_card():
     out = (svg_open(H) + side_rules(H)
            + panel(PX, 22, PW, H - 44)
            + img("billie_letter", PX + PW - 290, 70, 150, opacity=.16)
+           + img("journal_3", PX + PW - 104, H - 150, 80, opacity=.6)
            + card_title(PX + 22, 54, "CURRENTLY READING")
            + img("snoopy", PX + PW - 118, 6, 104)
            + f'<line x1="{PX+22}" y1="66" x2="{PX+PW-130}" y2="66" stroke="{LINE}" stroke-width=".6"/>')
@@ -439,18 +441,24 @@ def lastfm_card():
     try:
         req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0"})
         with urllib.request.urlopen(req, timeout=20) as r:
-            for a in json.loads(r.read()).get("topartists", {}).get("artist", []):
-                name, scrobbles = a.get("name"), int(a.get("playcount", 0))
-                a_url = f"http://ws.audioscrobbler.com/2.0/?method=artist.gettoptags&artist={urllib.parse.quote(name)}&api_key={API_KEY}&format=json"
-                try:
-                    a_req = urllib.request.Request(a_url, headers={"User-Agent":"Mozilla/5.0"})
-                    with urllib.request.urlopen(a_req, timeout=10) as ar:
-                        for t in json.loads(ar.read()).get("toptags", {}).get("tag", [])[:3]:
-                            tn = t.get("name").lower()
-                            tag_counts[tn] = tag_counts.get(tn, 0) + scrobbles
-                except Exception:
-                    pass
+            data = json.loads(r.read())
+        if "error" in data:          # e.g. rate limited — keep yesterday's card
+            return None
+        artists = data.get("topartists", {}).get("artist", [])
+        for a in artists:
+            name, scrobbles = a.get("name"), int(a.get("playcount", 0))
+            a_url = f"http://ws.audioscrobbler.com/2.0/?method=artist.gettoptags&artist={urllib.parse.quote(name)}&api_key={API_KEY}&format=json"
+            try:
+                a_req = urllib.request.Request(a_url, headers={"User-Agent":"Mozilla/5.0"})
+                with urllib.request.urlopen(a_req, timeout=10) as ar:
+                    for t in json.loads(ar.read()).get("toptags", {}).get("tag", [])[:3]:
+                        tn = t.get("name").lower()
+                        tag_counts[tn] = tag_counts.get(tn, 0) + scrobbles
+            except Exception:
+                pass
     except Exception:
+        return None
+    if artists and not tag_counts:   # artists came back but every tag lookup failed
         return None
 
     tags = sorted(tag_counts.items(), key=lambda x: x[1], reverse=True)[:5]
@@ -464,8 +472,12 @@ def lastfm_card():
     shades = ["#E8E2D6", "#C2BCB0", "#9A948A", "#7A756D", "#5E5A54"]
     ew = PW - 2
     eh = round(ew * png_size("eyes")[1] / png_size("eyes")[0])
-    out = (svg_open(H, css=BLINK) + side_rules(H)
+    out = (svg_open(H, css=BLINK + BOB) + side_rules(H)
+           + f'<g class="bob">{img("snake", 4, min(90, H - 112), 60, opacity=.85)}</g>'
+           + f'<clipPath id="panelClip"><rect x="{PX}" y="22" width="{PW}" height="{H - 44}"/></clipPath>'
+           + f'<g clip-path="url(#panelClip)">'
            + img("eyes", PX + 1, 22 + (H - 44 - eh) / 2, ew, eh, opacity=.45, extra='class="blink"')
+           + '</g>'
            + panel(PX, 22, PW, H - 44)
            + card_title(PX + 22, 54, "TOP TAGS · LAST 30 DAYS")
            + img("spotify_code", PX + PW - 186, 34, 166)
@@ -547,6 +559,10 @@ def footer_banner():
         '<stop offset="0" stop-color="#3A3732" stop-opacity=".9"/>'
         f'<stop offset="1" stop-color="{BG}" stop-opacity="0"/>'
         '</radialGradient>'
+        '<linearGradient id="sinkV" x1="0" y1="0" x2="0" y2="1">'
+        '<stop offset=".55" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient>'
+        '<mask id="fadeBottom" maskContentUnits="objectBoundingBox">'
+        '<rect width="1" height="1" fill="url(#sinkV)"/></mask>'
     )
     return (
         svg_open(H, defs=defs)
@@ -556,7 +572,9 @@ def footer_banner():
           f'fill="{TEXT_SEC}" letter-spacing="5" font-style="italic">crafted with dark magic</text>'
         + f'<ellipse cx="400" cy="250" rx="300" ry="70" fill="url(#fog)"/>'
         + img("graveyard", 130, 205, 540)
-        + img("signature", 590, 150, 100, opacity=.7)
+        + img("billie_glow", 612, 4, 140, extra='mask="url(#fadeBottom)"')
+        + img("signature", 604, 146, 104, opacity=.75)
+        + img("you_with_me", 126, 112, 96, opacity=.8)
         + img("frame_bottom", 0, 0, W, FRAME_BOT_H)
         + '</svg>'
     )
