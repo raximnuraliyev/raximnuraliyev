@@ -1,96 +1,140 @@
 #!/usr/bin/env python3
 """
-Black & White Gothic Halloween — GitHub Profile SVG Generator
-Monochrome ink-etching aesthetic. No purple. Steam-style clean headers.
+Gothic Halloween — GitHub Profile SVG Generator
+
+The README is one continuous dark canvas cut into horizontal slices.
+Every slice is 800 units wide, painted the same BG colour, and stacked with
+no gaps, so the etched frame (assets/ornaments/frame_*.png) and the thin side
+rules flow from slice to slice. Ornament PNGs come from process_icons.py.
 """
-import re, urllib.request, urllib.parse, base64, json, random
-from datetime import datetime
+import re, urllib.request, urllib.parse, base64, json
+from datetime import datetime, timezone
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
-ROOT   = Path(__file__).parent.parent
-ASSETS = ROOT / "assets"
-ASSETS.mkdir(exist_ok=True)
+ROOT     = Path(__file__).parent.parent
+ASSETS   = ROOT / "assets"
+ORN      = ASSETS / "ornaments"
 
-# ── COLOR PALETTE: Monochrome Gothic ───────────────────────
-BG        = "#0D0D0D"   # Near-black
-BG2       = "#161616"   # Slightly lighter panel
-BG3       = "#1E1E1E"   # Card surface
-BORDER    = "#2A2A2A"   # Subtle border
-BORDER_LT = "#3A3A3A"   # Lighter border accent
-TEXT_PRI  = "#E0E0E0"   # Primary text — warm white
-TEXT_SEC  = "#999999"   # Secondary text
-TEXT_DIM  = "#555555"   # Dim text
-ACCENT    = "#C8C8C8"   # Light accent for headers
-GOLD      = "#B8860B"   # Dark goldenrod for stars — the ONLY color accent
-WHITE     = "#FFFFFF"
+# ── PALETTE ────────────────────────────────────────────────
+BG        = "#0B0B0C"   # the one canvas colour, everywhere
+LINE      = "#2E2C29"   # panel borders
+LINE_LT   = "#4A4741"   # ornamental accents
+TEXT_PRI  = "#E8E2D6"   # bone white
+TEXT_SEC  = "#9A948A"   # aged paper grey
+TEXT_DIM  = "#5E5A54"
+PUMPKIN   = "#E8742A"   # the only warm accent
+GOLD      = "#C9A44C"   # star ratings
 
-try:
-    from datetime import timezone
-    NOW = datetime.now(timezone.utc).strftime("%d %b %Y UTC")
-except ImportError:
-    NOW = datetime.utcnow().strftime("%d %b %Y UTC")
+W     = 800
+RULE_L, RULE_R = 40, 760          # continuous side rules
+FRAME_S = W / 675                 # frame PNGs are 675 px wide
+FRAME_TOP_H = round(670 * FRAME_S)
+FRAME_BOT_H = round(530 * FRAME_S)
+HEADER_H  = 560
+PROFILE_H = 340
 
-def get_icon_b64(idx):
+NOW = datetime.now(timezone.utc).strftime("%d %b %Y")
+
+TITLE_FONT = "Creepster, 'Chiller', fantasy"
+SERIF      = "Georgia, 'Times New Roman', serif"
+MONO       = "Consolas, 'Courier New', monospace"
+
+
+# ── helpers ────────────────────────────────────────────────
+_cache = {}
+def orn(name):
+    """Base64 data URI for an ornament PNG."""
+    if name not in _cache:
+        try:
+            _cache[name] = "data:image/png;base64," + base64.b64encode((ORN / f"{name}.png").read_bytes()).decode()
+        except OSError:
+            _cache[name] = ""
+    return _cache[name]
+
+def creepster_face():
     try:
-        with open(ASSETS / f"processed_icons/icon_{idx}.png", "rb") as f:
-            return "data:image/png;base64," + base64.b64encode(f.read()).decode("utf-8")
-    except:
+        b = base64.b64encode((ROOT / "Creepster.ttf").read_bytes()).decode()
+        return f"@font-face{{font-family:Creepster;src:url(data:font/ttf;base64,{b}) format('truetype');}}"
+    except OSError:
         return ""
-
-def svg_defs():
-    return (
-        '<defs>'
-        '<linearGradient id="fadeEdge" x1="0" y1="0" x2="1" y2="0">'
-        f'<stop offset="0%" stop-color="{BORDER}" stop-opacity="0"/>'
-        f'<stop offset="15%" stop-color="{BORDER}" stop-opacity="0.6"/>'
-        f'<stop offset="50%" stop-color="{BORDER}" stop-opacity="1"/>'
-        f'<stop offset="85%" stop-color="{BORDER}" stop-opacity="0.6"/>'
-        f'<stop offset="100%" stop-color="{BORDER}" stop-opacity="0"/>'
-        '</linearGradient>'
-        '</defs>'
-    )
-
-def svg_card_bg(w, h, icons=None):
-    """Minimal dark card background with thin border and optional faded icons."""
-    r = f'<rect width="{w}" height="{h}" rx="6" fill="{BG}"/>'
-    r += f'<rect x="1" y="1" width="{w-2}" height="{h-2}" rx="5" fill="none" stroke="{BORDER}" stroke-width="1"/>'
-    if icons:
-        for (ib, x, y, s, o) in icons:
-            if ib:
-                r += f'<image href="{ib}" x="{x}" y="{y}" width="{s}" height="{s}" opacity="{o}"/>'
-    return r
-
-def svg_steam_header(w, label):
-    """Steam-style header bar — clean, no emoji, just text with thin line."""
-    return (
-        f'<rect x="0" y="0" width="{w}" height="38" rx="6" fill="{BG2}"/>'
-        f'<rect x="0" y="30" width="{w}" height="8" fill="{BG2}"/>'
-        f'<text x="18" y="25" font-family="Georgia, serif" font-size="11" fill="{ACCENT}" '
-        f'letter-spacing="3" font-weight="400" text-transform="uppercase">{label}</text>'
-        f'<line x1="15" y1="38" x2="{w-15}" y2="38" stroke="{BORDER_LT}" stroke-width="0.5"/>'
-    )
-
-def svg_footer(w, h):
-    return (
-        f'<line x1="15" y1="{h-20}" x2="{w-15}" y2="{h-20}" stroke="{BORDER}" stroke-width="0.3"/>'
-        f'<text x="{w-12}" y="{h-7}" font-family="Georgia, serif" font-size="8" fill="{TEXT_DIM}" '
-        f'text-anchor="end" font-style="italic">{NOW}</text>'
-    )
 
 def esc(s):
     return str(s).replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace('"',"&quot;")
 
 def trunc(s, n):
     s = s.strip()
-    return esc(s[:n-1] + "\u2026") if len(s) > n else esc(s)
+    return esc(s[:n-1] + "…") if len(s) > n else esc(s)
+
+def img(name, x, y, w, h=None, opacity=1, extra=""):
+    uri = orn(name)
+    if not uri: return ""
+    hh = f' height="{h}"' if h else ""
+    return f'<image href="{uri}" x="{x}" y="{y}" width="{w}"{hh} opacity="{opacity}" {extra}/>'
+
+def svg_open(h, font=False, defs=""):
+    style = f"<style>{creepster_face()}</style>" if font else ""
+    return (
+        f'<svg width="{W}" height="{h}" viewBox="0 0 {W} {h}" xmlns="http://www.w3.org/2000/svg">'
+        f'<defs>{style}'
+        '<linearGradient id="fade" x1="0" y1="0" x2="1" y2="0">'
+        f'<stop offset="0" stop-color="{LINE_LT}" stop-opacity="0"/>'
+        f'<stop offset=".5" stop-color="{LINE_LT}"/>'
+        f'<stop offset="1" stop-color="{LINE_LT}" stop-opacity="0"/>'
+        '</linearGradient>'
+        f'{defs}</defs>'
+        f'<rect width="{W}" height="{h}" fill="{BG}"/>'
+    )
+
+def side_rules(h, l=(0, None), r=(0, None)):
+    """Thin double rules down both edges; (start, end) in slice-local y."""
+    out = ""
+    for x, (y0, y1) in ((RULE_L, l), (RULE_R, r)):
+        if y0 is None: continue
+        y1 = h if y1 is None else y1
+        out += (f'<line x1="{x}" y1="{y0}" x2="{x}" y2="{y1}" stroke="{LINE_LT}" stroke-width=".8"/>'
+                f'<line x1="{x+4 if x < W/2 else x-4}" y1="{y0}" x2="{x+4 if x < W/2 else x-4}" y2="{y1}" '
+                f'stroke="{LINE}" stroke-width=".5"/>')
+    return out
+
+def diamond(cx, cy, r=3.5, fill=LINE_LT):
+    return f'<path d="M{cx} {cy-r} L{cx+r} {cy} L{cx} {cy+r} L{cx-r} {cy} Z" fill="{fill}"/>'
+
+def heading(y, text, size=30):
+    """Creepster section title with fading ornamental rules."""
+    half = len(text) * size * 0.27 + 24
+    cx = W // 2
+    return (
+        f'<text x="{cx}" y="{y}" text-anchor="middle" font-family="{TITLE_FONT}" font-size="{size}" '
+        f'fill="{TEXT_PRI}" letter-spacing="3">{esc(text)}</text>'
+        f'<line x1="{cx-half-170}" y1="{y-size*0.32}" x2="{cx-half}" y2="{y-size*0.32}" stroke="url(#fade)"/>'
+        f'<line x1="{cx+half}" y1="{y-size*0.32}" x2="{cx+half+170}" y2="{y-size*0.32}" stroke="url(#fade)"/>'
+        f'{diamond(cx-half-6, y-size*0.32)}{diamond(cx+half+6, y-size*0.32)}'
+    )
+
+def panel(x, y, w, h):
+    """Borderline panel — same colour as the canvas, just etched edges."""
+    c = 10
+    s = f'<rect x="{x}" y="{y}" width="{w}" height="{h}" fill="none" stroke="{LINE}" stroke-width="1"/>'
+    for px, py, dx, dy in ((x, y, 1, 1), (x+w, y, -1, 1), (x, y+h, 1, -1), (x+w, y+h, -1, -1)):
+        s += (f'<path d="M{px} {py+dy*c} L{px} {py} L{px+dx*c} {py}" fill="none" stroke="{TEXT_SEC}" stroke-width="1.2"/>'
+              f'{diamond(px+dx*4, py+dy*4, 1.6, TEXT_SEC)}')
+    return s
+
+def card_title(x, y, text):
+    return (f'<text x="{x}" y="{y}" font-family="{SERIF}" font-size="12" fill="{TEXT_SEC}" '
+            f'letter-spacing="4">{esc(text)}</text>')
+
+def stamp(x, y):
+    return (f'<text x="{x}" y="{y}" text-anchor="end" font-family="{SERIF}" font-size="9" '
+            f'fill="{TEXT_DIM}" font-style="italic">summoned {NOW}</text>')
 
 def fetch_xml(url):
     try:
         req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0"})
         with urllib.request.urlopen(req, timeout=20) as r:
             return ET.fromstring(r.read())
-    except:
+    except Exception:
         return None
 
 def get_b64_image(url):
@@ -99,106 +143,151 @@ def get_b64_image(url):
         req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0"})
         with urllib.request.urlopen(req, timeout=10) as r:
             ctype = r.headers.get('Content-Type', 'image/jpeg')
-            b64 = base64.b64encode(r.read()).decode('utf-8')
-            return f"data:{ctype};base64,{b64}"
-    except:
+            return f"data:{ctype};base64,{base64.b64encode(r.read()).decode()}"
+    except Exception:
         return ""
 
 
 # ═══════════════════════════════════════════════════════════
-#  HEADER BANNER — Clean monochrome with scattered stickers
+#  HEADER — castle under a moon, inside the top of the frame
 # ═══════════════════════════════════════════════════════════
 def header_banner():
-    W, H = 800, 180
-    icon_tl = get_icon_b64(2)
-    icon_tr = get_icon_b64(3)
-    icon_bl = get_icon_b64(6)
-    icon_br = get_icon_b64(1)
-    corners = []
-    if icon_tl: corners.append((icon_tl, 12, 10, 75, 0.35))
-    if icon_tr: corners.append((icon_tr, W-87, 10, 75, 0.35))
-    if icon_bl: corners.append((icon_bl, 25, H-65, 50, 0.2))
-    if icon_br: corners.append((icon_br, W-75, H-65, 50, 0.2))
-
+    H = HEADER_H
+    defs = (
+        '<radialGradient id="moon" cx=".5" cy=".5" r=".5">'
+        '<stop offset="0" stop-color="#8A8476"/>'
+        '<stop offset=".35" stop-color="#4A4740" stop-opacity=".8"/>'
+        '<stop offset=".7" stop-color="#22201D" stop-opacity=".5"/>'
+        f'<stop offset="1" stop-color="{BG}" stop-opacity="0"/>'
+        '</radialGradient>'
+        '<linearGradient id="sink" x1="0" y1="0" x2="0" y2="1">'
+        '<stop offset=".6" stop-color="#fff"/><stop offset="1" stop-color="#000"/>'
+        '</linearGradient>'
+        '<mask id="castleFade"><rect x="0" y="0" width="800" height="560" fill="url(#sink)"/></mask>'
+    )
     return (
-        f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
-        f'{svg_defs()}'
-        f'{svg_card_bg(W, H, icons=corners)}'
-        # Title
-        f'<text x="{W//2}" y="82" text-anchor="middle" font-family="Georgia, serif" font-size="40" font-weight="700" fill="{WHITE}">Rakhim Nuraliyev</text>'
-        # Thin ornamental line
-        f'<line x1="{W//2-100}" y1="100" x2="{W//2+100}" y2="100" stroke="url(#fadeEdge)" stroke-width="1"/>'
-        # Subtitle
-        f'<text x="{W//2}" y="120" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="{TEXT_SEC}" font-style="italic" letter-spacing="2">PDP University \u2014 B.S. Software Development</text>'
-        # Bottom tagline
-        f'<text x="{W//2}" y="155" text-anchor="middle" font-family="Georgia, serif" font-size="9" fill="{TEXT_DIM}" letter-spacing="6">SOFTWARE ENGINEER \u00b7 GAME DEV \u00b7 CREATIVE</text>'
-        f'</svg>'
+        svg_open(H, font=True, defs=defs)
+        + f'<circle cx="430" cy="250" r="230" fill="url(#moon)"/>'
+        + f'<g mask="url(#castleFade)">{img("castle", 170, 120, 420)}</g>'
+        + side_rules(H, l=(300, None))
+        + img("frame_top", 0, 0, W, FRAME_TOP_H)
+        + f'<text x="{W//2}" y="462" text-anchor="middle" font-family="{TITLE_FONT}" font-size="54" '
+          f'fill="{TEXT_PRI}" letter-spacing="4">Rakhim Nuraliyev</text>'
+        + f'<line x1="250" y1="482" x2="550" y2="482" stroke="url(#fade)"/>{diamond(400, 482)}'
+        + f'<text x="{W//2}" y="506" text-anchor="middle" font-family="{SERIF}" font-size="13" '
+          f'fill="{TEXT_SEC}" font-style="italic" letter-spacing="1.5">SWE Intern @ UIC Games · Full-Stack @ BOGATIR Textile</text>'
+        + f'<text x="{W//2}" y="536" text-anchor="middle" font-family="{SERIF}" font-size="9.5" '
+          f'fill="{TEXT_DIM}" letter-spacing="6">SOFTWARE ENGINEER · GAME DEV · CREATIVE</text>'
+        + '</svg>'
     )
 
 
 # ═══════════════════════════════════════════════════════════
-#  DIVIDER — Minimal ornamental
-# ═══════════════════════════════════════════════════════════
-def divider_svg():
-    W, H = 800, 20
-    mid = W // 2
-    return (
-        f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
-        f'{svg_defs()}'
-        f'<line x1="100" y1="{H//2}" x2="{W-100}" y2="{H//2}" stroke="url(#fadeEdge)" stroke-width="0.5"/>'
-        f'<circle cx="{mid}" cy="{H//2}" r="2" fill="{BORDER_LT}"/>'
-        f'<circle cx="{mid-30}" cy="{H//2}" r="1" fill="{BORDER}" opacity="0.5"/>'
-        f'<circle cx="{mid+30}" cy="{H//2}" r="1" fill="{BORDER}" opacity="0.5"/>'
-        f'</svg>'
-    )
-
-
-# ═══════════════════════════════════════════════════════════
-#  INFO CARD — Clean dark card (no parchment)
+#  PROFILE — frame's right pendant still hanging down
 # ═══════════════════════════════════════════════════════════
 def info_card():
-    W, H = 800, 310
+    H = PROFILE_H
     lines_data = [
         ("name:", "Rakhim Nuraliyev"),
-        ("education:", "PDP University \u2014 B.S. Software Development"),
+        ("education:", "PDP University — B.S. Software Development"),
         ("age:", "19"),
-        ("", ""),
         ("experience:", ""),
         ("  -", "{ role: SWE Intern, org: UIC Games }"),
         ("  -", "{ role: Full-Stack Dev, org: BOGATIR Textile }"),
-        ("", ""),
         ("events:", ""),
-        ("  2026:", ""),
-        ("    -", "ICT WEEK \u00b7 GameFest \u00b7 ETHOnline Hackathon"),
-        ("    -", "35 LVL Game Jam \u00b7 GDG Build with AI"),
-        ("    -", "PAYNET x ITPU Hackathon  # Team Mars"),
-        ("  2025:", ""),
-        ("    -", "GDG DevFest Uzbekistan"),
+        ("  2026:", "ICT WEEK · GameFest · ETHOnline Hackathon"),
+        ("", "35 LVL Game Jam · GDG Build with AI"),
+        ("", "PAYNET x ITPU Hackathon  # Team Mars"),
+        ("  2025:", "GDG DevFest Uzbekistan"),
     ]
-    icon_deco = get_icon_b64(9)
-    icons = []
-    if icon_deco: icons.append((icon_deco, W-100, 15, 65, 0.12))
-
-    result = (
-        f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
-        f'{svg_defs()}'
-        f'{svg_card_bg(W, H, icons=icons)}'
-        f'{svg_steam_header(W, "PROFILE")}'
+    PX, PY, PW, PH = 130, 78, 520, 240
+    out = (
+        svg_open(H, font=True)
+        + img("bats", -10, 40, 150, opacity=.45)
+        + side_rules(H, l=(0, None), r=(FRAME_TOP_H - HEADER_H, None))
+        + img("frame_top", 0, -HEADER_H, W, FRAME_TOP_H)
+        + heading(52, "Profile")
+        + panel(PX, PY, PW, PH)
     )
-    
-    y_start = 60
-    line_h = 17
     for i, (key, val) in enumerate(lines_data):
-        y = y_start + i * line_h
+        y = PY + 28 + i * 19.5
         if key:
-            result += f'<text x="22" y="{y}" font-family="Consolas, monospace" font-size="12" fill="{ACCENT}" font-weight="700">{esc(key)}</text>'
+            out += f'<text x="{PX+22}" y="{y}" font-family="{MONO}" font-size="12" fill="{TEXT_PRI}" font-weight="700">{esc(key)}</text>'
         if val:
-            x_off = 22 + len(key) * 7.2 + 6 if key else 22
-            result += f'<text x="{x_off}" y="{y}" font-family="Consolas, monospace" font-size="12" fill="{TEXT_SEC}">{esc(val)}</text>'
-    
-    result += svg_footer(W, H)
-    result += '</svg>'
-    return result
+            x = PX + 22 + (max(len(key), 7) + 1) * 7.2
+            out += f'<text x="{x:.0f}" y="{y}" font-family="{MONO}" font-size="12" fill="{TEXT_SEC}">{esc(val)}</text>'
+    return out + '</svg>'
+
+
+# ═══════════════════════════════════════════════════════════
+#  SOCIAL ROW — six slices that sit side by side (12.5/18.75%)
+# ═══════════════════════════════════════════════════════════
+SOCIAL_H = 90
+SOCIALS = [
+    ("gmail",    "GMAIL",    "write a letter"),
+    ("telegram", "TELEGRAM", "send a raven"),
+    ("discord",  "DISCORD",  "join the seance"),
+    ("linkedin", "LINKEDIN", "the guild hall"),
+]
+
+def social_pad(side):
+    w = 100
+    s = (f'<svg width="{w}" height="{SOCIAL_H}" viewBox="0 0 {w} {SOCIAL_H}" xmlns="http://www.w3.org/2000/svg">'
+         f'<rect width="{w}" height="{SOCIAL_H}" fill="{BG}"/>')
+    rx = RULE_L if side == "left" else RULE_R - 700
+    dx = 4 if side == "left" else -4
+    s += (f'<line x1="{rx}" y1="0" x2="{rx}" y2="{SOCIAL_H}" stroke="{LINE_LT}" stroke-width=".8"/>'
+          f'<line x1="{rx+dx}" y1="0" x2="{rx+dx}" y2="{SOCIAL_H}" stroke="{LINE}" stroke-width=".5"/>')
+    return s + '</svg>'
+
+def social_button(label, sub):
+    w = 150
+    s = (f'<svg width="{w}" height="{SOCIAL_H}" viewBox="0 0 {w} {SOCIAL_H}" xmlns="http://www.w3.org/2000/svg">'
+         f'<rect width="{w}" height="{SOCIAL_H}" fill="{BG}"/>')
+    s += panel(10, 18, w - 20, 54)
+    s += (f'<text x="{w/2}" y="44" text-anchor="middle" font-family="{SERIF}" font-size="13" '
+          f'fill="{TEXT_PRI}" letter-spacing="3">{label}</text>'
+          f'<text x="{w/2}" y="61" text-anchor="middle" font-family="{SERIF}" font-size="9" '
+          f'fill="{TEXT_SEC}" font-style="italic" letter-spacing="1">{sub}</text>')
+    return s + '</svg>'
+
+
+# ═══════════════════════════════════════════════════════════
+#  THE APOTHECARY — tech stack as labelled vials
+# ═══════════════════════════════════════════════════════════
+STACK = [".NET", "Node.js", "PostgreSQL", "MongoDB",
+         "Git", "Unity", "Blender", "Krita",
+         "Figma", "DaVinci Resolve", "Agile", "Scrum"]
+
+def stack_card():
+    cols, cw, ch, gx, gy = 4, 146, 36, 14, 14
+    rows = (len(STACK) + cols - 1) // cols
+    x0 = (W - (cols * cw + (cols - 1) * gx)) // 2
+    y0 = 92
+    H = y0 + rows * (ch + gy) + 26
+    out = svg_open(H, font=True) + side_rules(H) + heading(56, "The Apothecary")
+    for i, name in enumerate(STACK):
+        r, c = divmod(i, cols)
+        x, y = x0 + c * (cw + gx), y0 + r * (ch + gy)
+        out += (f'<rect x="{x}" y="{y}" width="{cw}" height="{ch}" rx="3" fill="none" stroke="{LINE}" stroke-width="1"/>'
+                f'<rect x="{x+3}" y="{y+3}" width="{cw-6}" height="{ch-6}" rx="2" fill="none" stroke="{LINE}" stroke-width=".5" stroke-dasharray="1,3"/>'
+                f'{diamond(x+14, y+ch/2, 2.5, PUMPKIN if i % 5 == 0 else LINE_LT)}'
+                f'<text x="{x+cw/2+6}" y="{y+ch/2+4.5}" text-anchor="middle" font-family="{SERIF}" '
+                f'font-size="12.5" fill="{TEXT_PRI}" letter-spacing="1">{esc(name)}</text>')
+    return out + '</svg>'
+
+
+# ═══════════════════════════════════════════════════════════
+#  THE ARCHIVES — garland title
+# ═══════════════════════════════════════════════════════════
+def archives_title():
+    H = 290
+    return (
+        svg_open(H, font=True) + side_rules(H)
+        + img("pumpkin_garland", 180, 6, 440)
+        + heading(272, "The Archives")
+        + '</svg>'
+    )
 
 
 # ═══════════════════════════════════════════════════════════
@@ -206,54 +295,41 @@ def info_card():
 # ═══════════════════════════════════════════════════════════
 def goodreads_card():
     root = fetch_xml("https://www.goodreads.com/review/list_rss/202996478-ajax?shelf=currently-reading")
+    if root is None:
+        return None
     books = []
-    if root is not None:
-        ch = root.find("channel")
-        for item in (ch.findall("item") if ch is not None else [])[:5]:
-            raw = (item.findtext("title") or "").strip()
-            pub = (item.findtext("book_published") or "").strip()
-            img_url = (item.findtext("book_large_image_url") or "").strip()
-            b64 = get_b64_image(img_url)
-            if " by " in raw:
-                t, a = raw.rsplit(" by ", 1)
-                books.append((trunc(t, 50), trunc(a, 35), pub, b64))
-            else:
-                books.append((trunc(raw, 50), "", pub, b64))
+    ch = root.find("channel")
+    for item in (ch.findall("item") if ch is not None else [])[:5]:
+        raw = (item.findtext("title") or "").strip()
+        pub = (item.findtext("book_published") or "").strip()
+        b64 = get_b64_image((item.findtext("book_large_image_url") or "").strip())
+        if " by " in raw:
+            t, a = raw.rsplit(" by ", 1)
+            books.append((trunc(t, 44), trunc(a, 35), pub, b64))
+        else:
+            books.append((trunc(raw, 44), "", pub, b64))
     if not books:
         books = [("No books currently reading", "", "", "")]
 
-    W, ROW_H, Y0 = 800, 72, 55
-    H = Y0 + len(books) * ROW_H + 25
-    icon = get_icon_b64(0)
-    icons = []
-    if icon: icons.append((icon, W-75, 5, 40, 0.15))
-
-    result = (
-        f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
-        f'{svg_defs()}'
-        f'{svg_card_bg(W, H, icons=icons)}'
-        f'{svg_steam_header(W, "CURRENTLY READING")}'
-    )
-    
-    for i, (t, a, pub, img) in enumerate(books):
+    PX, PW, ROW_H, Y0 = 80, 640, 74, 78
+    H = Y0 + len(books) * ROW_H + 52
+    out = (svg_open(H) + side_rules(H)
+           + panel(PX, 22, PW, H - 44)
+           + card_title(PX + 22, 54, "CURRENTLY READING")
+           + img("snoopy", PX + PW - 118, 6, 104)
+           + f'<line x1="{PX+22}" y1="66" x2="{PX+PW-130}" y2="66" stroke="{LINE}" stroke-width=".6"/>')
+    for i, (t, a, pub, cover) in enumerate(books):
         y = Y0 + i * ROW_H
-        if img:
-            result += f'<rect x="17" y="{y+3}" width="42" height="62" rx="2" fill="{BORDER}"/>'
-            result += f'<image x="18" y="{y+4}" width="40" height="60" preserveAspectRatio="xMidYMid slice" href="{img}"/>'
-        else:
-            result += f'<rect x="18" y="{y+4}" width="40" height="60" rx="2" fill="{BG3}"/>'
-        result += f'<text x="72" y="{y+26}" font-family="Georgia, serif" font-size="14" fill="{TEXT_PRI}" font-weight="600">{t}</text>'
-        sub = []
-        if a: sub.append(f"by {a}")
-        if pub: sub.append(f"({pub})")
+        out += f'<rect x="{PX+21}" y="{y+5}" width="42" height="62" fill="none" stroke="{LINE_LT}" stroke-width="1"/>'
+        if cover:
+            out += f'<image x="{PX+22}" y="{y+6}" width="40" height="60" preserveAspectRatio="xMidYMid slice" href="{cover}"/>'
+        out += f'<text x="{PX+78}" y="{y+30}" font-family="{SERIF}" font-size="15" fill="{TEXT_PRI}">{t}</text>'
+        sub = " ".join(x for x in (f"by {a}" if a else "", f"({pub})" if pub else "") if x)
         if sub:
-            result += f'<text x="72" y="{y+45}" font-family="Georgia, serif" font-size="11" fill="{TEXT_SEC}" font-style="italic">{" ".join(sub)}</text>'
-        if i < len(books)-1:
-            result += f'<line x1="18" y1="{y+ROW_H}" x2="{W-18}" y2="{y+ROW_H}" stroke="{BORDER}" stroke-width="0.5" stroke-dasharray="2,4"/>'
-    
-    result += svg_footer(W, H)
-    result += '</svg>'
-    return result
+            out += f'<text x="{PX+78}" y="{y+50}" font-family="{SERIF}" font-size="11.5" fill="{TEXT_SEC}" font-style="italic">{sub}</text>'
+        if i < len(books) - 1:
+            out += f'<line x1="{PX+22}" y1="{y+ROW_H}" x2="{PX+PW-22}" y2="{y+ROW_H}" stroke="{LINE}" stroke-width=".6" stroke-dasharray="2,5"/>'
+    return out + stamp(PX + PW - 14, H - 32) + '</svg>'
 
 
 # ═══════════════════════════════════════════════════════════
@@ -266,10 +342,8 @@ def lastfm_card():
     try:
         req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0"})
         with urllib.request.urlopen(req, timeout=20) as r:
-            data = json.loads(r.read())
-            for a in data.get("topartists", {}).get("artist", []):
-                name = a.get("name")
-                scrobbles = int(a.get("playcount", 0))
+            for a in json.loads(r.read()).get("topartists", {}).get("artist", []):
+                name, scrobbles = a.get("name"), int(a.get("playcount", 0))
                 a_url = f"http://ws.audioscrobbler.com/2.0/?method=artist.gettoptags&artist={urllib.parse.quote(name)}&api_key={API_KEY}&format=json"
                 try:
                     a_req = urllib.request.Request(a_url, headers={"User-Agent":"Mozilla/5.0"})
@@ -277,156 +351,134 @@ def lastfm_card():
                         for t in json.loads(ar.read()).get("toptags", {}).get("tag", [])[:3]:
                             tn = t.get("name").lower()
                             tag_counts[tn] = tag_counts.get(tn, 0) + scrobbles
-                except:
+                except Exception:
                     pass
-    except:
-        pass
+    except Exception:
+        return None
 
-    sorted_tags = sorted(tag_counts.items(), key=lambda x: x[1], reverse=True)[:5]
-    if not sorted_tags:
-        sorted_tags = [("just chilling... no music lately", 1)]
-    max_score = sorted_tags[0][1] if sorted_tags[0][1] > 0 else 1
+    tags = sorted(tag_counts.items(), key=lambda x: x[1], reverse=True)[:5]
+    empty = not tags
+    if empty:
+        tags = [("just chilling... no music lately", 1)]
+    max_score = tags[0][1] or 1
 
-    W, ROW_H, Y0 = 800, 50, 55
-    H = Y0 + len(sorted_tags) * ROW_H + 25
-    icon = get_icon_b64(5)
-    icons = []
-    if icon: icons.append((icon, W-75, 5, 40, 0.15))
-    # Monochrome gradient bars — white to gray
-    bar_shades = ["#E0E0E0", "#BBBBBB", "#999999", "#777777", "#555555"]
-
-    result = (
-        f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
-        f'{svg_defs()}'
-        f'{svg_card_bg(W, H, icons=icons)}'
-        f'{svg_steam_header(W, "TOP TAGS \u00b7 LAST 30 DAYS")}'
-    )
-    
-    for i, (tag, score) in enumerate(sorted_tags):
+    PX, PW, ROW_H, Y0 = 80, 640, 46, 82
+    H = Y0 + len(tags) * ROW_H + 52
+    shades = ["#E8E2D6", "#C2BCB0", "#9A948A", "#7A756D", "#5E5A54"]
+    out = (svg_open(H) + side_rules(H)
+           + panel(PX, 22, PW, H - 44)
+           + card_title(PX + 22, 54, "TOP TAGS · LAST 30 DAYS")
+           + img("spotify_code", PX + PW - 186, 34, 166)
+           + f'<line x1="{PX+22}" y1="66" x2="{PX+PW-200}" y2="66" stroke="{LINE}" stroke-width=".6"/>')
+    for i, (tag, score) in enumerate(tags):
         y = Y0 + i * ROW_H
-        shade = bar_shades[i % len(bar_shades)]
-        result += f'<text x="22" y="{y+30}" font-family="Georgia, serif" font-size="14" fill="{TEXT_PRI}" font-weight="600">{esc(tag)}</text>'
-        if tag != "just chilling... no music lately":
-            bar_max = 440
-            bar_width = max(18, int((score / max_score) * bar_max))
-            bar_x = W - 22 - bar_max
-            result += f'<rect x="{bar_x}" y="{y+16}" width="{bar_max}" height="18" rx="9" fill="{BG3}"/>'
-            result += f'<rect x="{bar_x}" y="{y+16}" width="{bar_width}" height="18" rx="9" fill="{shade}" opacity="0.7"/>'
-            result += f'<text x="{bar_x+10}" y="{y+30}" font-family="Georgia, serif" font-size="9" fill="{BG}" font-weight="700">~{score}</text>'
-        if i < len(sorted_tags)-1:
-            result += f'<line x1="22" y1="{y+ROW_H}" x2="{W-22}" y2="{y+ROW_H}" stroke="{BORDER}" stroke-width="0.3" stroke-dasharray="2,4"/>'
-    
-    result += svg_footer(W, H)
-    result += '</svg>'
-    return result
+        out += f'<text x="{PX+22}" y="{y+27}" font-family="{SERIF}" font-size="15" fill="{TEXT_PRI}">{esc(tag)}</text>'
+        if not empty:
+            bar_max = 380
+            bw = max(18, int(score / max_score * bar_max))
+            bx = PX + PW - 22 - bar_max
+            out += (f'<rect x="{bx}" y="{y+13}" width="{bar_max}" height="16" rx="8" fill="none" stroke="{LINE}" stroke-width="1"/>'
+                    f'<rect x="{bx}" y="{y+13}" width="{bw}" height="16" rx="8" fill="{shades[i % 5]}" opacity=".8"/>'
+                    f'<text x="{bx+10}" y="{y+25}" font-family="{SERIF}" font-size="9" fill="{BG}" font-weight="700">~{score}</text>')
+        if i < len(tags) - 1:
+            out += f'<line x1="{PX+22}" y1="{y+ROW_H-2}" x2="{PX+PW-22}" y2="{y+ROW_H-2}" stroke="{LINE}" stroke-width=".6" stroke-dasharray="2,5"/>'
+    return out + stamp(PX + PW - 14, H - 32) + '</svg>'
 
 
 # ═══════════════════════════════════════════════════════════
 #  LETTERBOXD
 # ═══════════════════════════════════════════════════════════
 def star_str(rating_str):
-    if not rating_str: return ""
     try:
         r = float(rating_str)
-        full = int(r)
-        half = 1 if (r - full) >= 0.5 else 0
-        empty = 5 - full - half
-        return "\u2605" * full + ("\u00bd" if half else "") + "\u2606" * empty
-    except:
+    except (TypeError, ValueError):
         return ""
+    full, half = int(r), 1 if r - int(r) >= .5 else 0
+    return "★" * full + ("½" if half else "") + "☆" * (5 - full - half)
 
 def letterboxd_card():
     LB = "https://letterboxd.com"
     root = fetch_xml("https://letterboxd.com/ajax_rn/rss/")
+    if root is None:
+        return None
     films = []
-    if root is not None:
-        ch = root.find("channel")
-        for item in (ch.findall("item") if ch is not None else [])[:5]:
-            raw = (item.findtext("title") or "").strip()
-            title = re.sub(r"\s*-\s*[\u2605\u00bd\u2606]+.*$", "", raw).strip()
-            rating = item.findtext(f"{{{LB}}}memberRating") or item.findtext(f"{{{LB}}}rating") or ""
-            desc_html = item.findtext("description") or ""
-            img_url = ""
-            m = re.search(r'<img.*?src="(.*?)"', desc_html)
-            if m: img_url = m.group(1)
-            b64 = get_b64_image(img_url)
-            films.append((trunc(title, 50), star_str(rating), b64))
+    ch = root.find("channel")
+    for item in (ch.findall("item") if ch is not None else [])[:5]:
+        raw = (item.findtext("title") or "").strip()
+        title = re.sub(r"\s*-\s*[★½☆]+.*$", "", raw).strip()
+        rating = item.findtext(f"{{{LB}}}memberRating") or item.findtext(f"{{{LB}}}rating") or ""
+        m = re.search(r'<img.*?src="(.*?)"', item.findtext("description") or "")
+        films.append((trunc(title, 44), star_str(rating), get_b64_image(m.group(1) if m else "")))
     if not films:
         films = [("No recent films found", "", "")]
 
-    W, ROW_H, Y0 = 800, 72, 55
-    H = Y0 + len(films) * ROW_H + 25
-    icon = get_icon_b64(4)
-    icons = []
-    if icon: icons.append((icon, W-75, 5, 40, 0.15))
-
-    result = (
-        f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
-        f'{svg_defs()}'
-        f'{svg_card_bg(W, H, icons=icons)}'
-        f'{svg_steam_header(W, "RECENTLY WATCHED")}'
-    )
-    
-    for i, (film, stars, img) in enumerate(films):
+    PX, PW, ROW_H, Y0 = 80, 640, 74, 78
+    H = Y0 + len(films) * ROW_H + 52
+    out = (svg_open(H) + side_rules(H)
+           + panel(PX, 22, PW, H - 44)
+           + card_title(PX + 22, 54, "RECENTLY WATCHED")
+           + img("ghost", PX + PW - 92, 8, 70)
+           + f'<line x1="{PX+22}" y1="66" x2="{PX+PW-110}" y2="66" stroke="{LINE}" stroke-width=".6"/>')
+    for i, (film, stars, poster) in enumerate(films):
         y = Y0 + i * ROW_H
-        if img:
-            result += f'<rect x="17" y="{y+3}" width="42" height="62" rx="2" fill="{BORDER}"/>'
-            result += f'<image x="18" y="{y+4}" width="40" height="60" preserveAspectRatio="xMidYMid slice" href="{img}"/>'
-        else:
-            result += f'<rect x="18" y="{y+4}" width="40" height="60" rx="2" fill="{BG3}"/>'
-        result += f'<text x="72" y="{y+35}" font-family="Georgia, serif" font-size="14" fill="{TEXT_PRI}" font-weight="600">{film}</text>'
+        out += f'<rect x="{PX+21}" y="{y+5}" width="42" height="62" fill="none" stroke="{LINE_LT}" stroke-width="1"/>'
+        if poster:
+            out += f'<image x="{PX+22}" y="{y+6}" width="40" height="60" preserveAspectRatio="xMidYMid slice" href="{poster}"/>'
+        out += f'<text x="{PX+78}" y="{y+41}" font-family="{SERIF}" font-size="15" fill="{TEXT_PRI}">{film}</text>'
         if stars:
-            result += f'<text x="{W-22}" y="{y+35}" text-anchor="end" font-family="Georgia, serif" font-size="14" fill="{GOLD}">{esc(stars)}</text>'
-        if i < len(films)-1:
-            result += f'<line x1="18" y1="{y+ROW_H}" x2="{W-18}" y2="{y+ROW_H}" stroke="{BORDER}" stroke-width="0.5" stroke-dasharray="2,4"/>'
-    
-    result += svg_footer(W, H)
-    result += '</svg>'
-    return result
+            out += f'<text x="{PX+PW-24}" y="{y+41}" text-anchor="end" font-family="{SERIF}" font-size="15" fill="{GOLD}">{esc(stars)}</text>'
+        if i < len(films) - 1:
+            out += f'<line x1="{PX+22}" y1="{y+ROW_H}" x2="{PX+PW-22}" y2="{y+ROW_H}" stroke="{LINE}" stroke-width=".6" stroke-dasharray="2,5"/>'
+    return out + stamp(PX + PW - 14, H - 32) + '</svg>'
 
 
 # ═══════════════════════════════════════════════════════════
-#  FOOTER BANNER
+#  FOOTER — lettering, graveyard in the fog, bottom of the frame
 # ═══════════════════════════════════════════════════════════
 def footer_banner():
-    W, H = 800, 50
-    icon_a = get_icon_b64(8)
-    icon_b = get_icon_b64(4)
-    r = (
-        f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
-        f'{svg_defs()}'
-        f'<rect width="{W}" height="{H}" fill="{BG}"/>'
-        f'<line x1="100" y1="15" x2="{W-100}" y2="15" stroke="url(#fadeEdge)" stroke-width="0.5"/>'
+    H = FRAME_BOT_H
+    defs = (
+        '<radialGradient id="fog" cx=".5" cy=".5" r=".5">'
+        '<stop offset="0" stop-color="#3A3732" stop-opacity=".9"/>'
+        f'<stop offset="1" stop-color="{BG}" stop-opacity="0"/>'
+        '</radialGradient>'
     )
-    if icon_a:
-        r += f'<image href="{icon_a}" x="15" y="5" width="38" height="38" opacity="0.15"/>'
-    if icon_b:
-        r += f'<image href="{icon_b}" x="{W-53}" y="5" width="38" height="38" opacity="0.15"/>'
-    r += (
-        f'<text x="{W//2}" y="35" text-anchor="middle" font-family="Georgia, serif" font-size="9" fill="{TEXT_DIM}" letter-spacing="4" font-style="italic">'
-        f'crafted with dark magic</text>'
-        f'</svg>'
+    return (
+        svg_open(H, defs=defs)
+        + side_rules(H, l=(0, 40), r=(0, 350))
+        + img("happy_halloween", 225, 18, 350)
+        + f'<text x="{W//2}" y="170" text-anchor="middle" font-family="{SERIF}" font-size="10" '
+          f'fill="{TEXT_SEC}" letter-spacing="5" font-style="italic">crafted with dark magic</text>'
+        + f'<ellipse cx="400" cy="250" rx="300" ry="70" fill="url(#fog)"/>'
+        + img("graveyard", 130, 205, 540)
+        + img("frame_bottom", 0, 0, W, FRAME_BOT_H)
+        + '</svg>'
     )
-    return r
 
 
 # ═══════════════════════════════════════════════════════════
 if __name__ == "__main__":
     import sys
-    sys.stdout.reconfigure(encoding='utf-8')
-    print("Generating Black & White Gothic profile assets...")
-    (ASSETS / "header_banner.svg").write_text(header_banner(), encoding="utf-8")
-    print("  done: header_banner.svg")
-    (ASSETS / "divider.svg").write_text(divider_svg(), encoding="utf-8")
-    print("  done: divider.svg")
-    (ASSETS / "info_card.svg").write_text(info_card(), encoding="utf-8")
-    print("  done: info_card.svg")
-    (ASSETS / "goodreads_card.svg").write_text(goodreads_card(), encoding="utf-8")
-    print("  done: goodreads_card.svg")
-    (ASSETS / "lastfm_card.svg").write_text(lastfm_card(), encoding="utf-8")
-    print("  done: lastfm_card.svg")
-    (ASSETS / "letterboxd_card.svg").write_text(letterboxd_card(), encoding="utf-8")
-    print("  done: letterboxd_card.svg")
-    (ASSETS / "footer_banner.svg").write_text(footer_banner(), encoding="utf-8")
-    print("  done: footer_banner.svg")
-    print("\nAll B&W Gothic assets generated.")
+    sys.stdout.reconfigure(encoding="utf-8")
+    print("Generating gothic canvas slices...")
+    out = {
+        "header_banner.svg":  header_banner(),
+        "info_card.svg":      info_card(),
+        "social_pad_l.svg":   social_pad("left"),
+        "social_pad_r.svg":   social_pad("right"),
+        "stack_card.svg":     stack_card(),
+        "archives_title.svg": archives_title(),
+        "goodreads_card.svg": goodreads_card(),
+        "lastfm_card.svg":    lastfm_card(),
+        "letterboxd_card.svg": letterboxd_card(),
+        "footer_banner.svg":  footer_banner(),
+    }
+    for key, label, sub in SOCIALS:
+        out[f"social_{key}.svg"] = social_button(label, sub)
+    for name, svg in out.items():
+        if svg is None:
+            # feed unreachable — keep yesterday's card rather than blanking it
+            print(f"  kept: {name} (fetch failed)")
+            continue
+        (ASSETS / name).write_text(svg, encoding="utf-8")
+        print(f"  done: {name}")
