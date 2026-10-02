@@ -48,7 +48,7 @@ def get_halloween_svg_defs():
     ]
     for b, x, y, s in icons_to_place:
         if b:
-            bgs += f'<image href="{b}" x="{x}" y="{y}" width="{s}" height="{s}" opacity="0.12" />'
+            bgs += f'<image href="{b}" x="{x}" y="{y}" width="{s}" height="{s}" opacity="0.3" />'
             
     return style + bgs
 
@@ -118,7 +118,7 @@ def goodreads_card():
         else:
             rows += f'<rect x="20" y="{y+5}" width="40" height="60" fill="#21262d"/>'
 
-        rows += f'<text x="75" y="{y+25}" font-family="Segoe UI,Arial,sans-serif" font-size="15" fill="{TEXT_PRI}" font-weight="600">{t}</text>'
+        rows += f'<text x="75" y="{y+25}" font-family="Creepster, sans-serif" font-size="15" fill="{TEXT_PRI}" font-weight="600">{t}</text>'
 
         subtext = []
         if a: subtext.append(f"by {a}")
@@ -126,23 +126,23 @@ def goodreads_card():
         subtext_str = " ".join(subtext)
 
         if subtext_str:
-            rows += f'<text x="75" y="{y+45}" font-family="Segoe UI,Arial,sans-serif" font-size="13" fill="{TEXT_MUT}">{subtext_str}</text>'
+            rows += f'<text x="75" y="{y+45}" font-family="Creepster, sans-serif" font-size="13" fill="{TEXT_MUT}">{subtext_str}</text>'
 
         if i < len(books)-1:
             rows += f'<line x1="20" y1="{y+ROW_H}" x2="{W-20}" y2="{y+ROW_H}" stroke="{BORDER}" stroke-width="1" opacity="0.6"/>'
 
     return (
         f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
-        f'{get_halloween_svg_defs()}'
         f'<rect width="{W}" height="{H}" rx="0" fill="{BG}"/>'
+        f'{get_halloween_svg_defs()}'
         f'<rect width="{W-2}" height="{H-2}" x="1" y="1" rx="0" fill="none" stroke="{BORDER}" stroke-width="1"/>'
         f'<rect width="{W}" height="36" rx="0" fill="{BG2}"/>'
         f'<rect y="28" width="{W}" height="8" fill="{BG2}"/>'
-        f'<text x="20" y="23" font-family="Segoe UI,Arial,sans-serif" font-size="10" fill="{GREEN}" letter-spacing="1.2" font-weight="700">CURRENTLY READING \u00b7 goodreads.com/202996478-ajax</text>'
+        f'<text x="20" y="23" font-family="Creepster, sans-serif" font-size="10" fill="{GREEN}" letter-spacing="1.2" font-weight="700">CURRENTLY READING \u00b7 goodreads.com/202996478-ajax</text>'
         f'<line x1="20" y1="36" x2="{W-20}" y2="36" stroke="{BORDER}" stroke-width="1"/>'
         f'{rows}'
         f'<line x1="20" y1="{H-18}" x2="{W-20}" y2="{H-18}" stroke="{BORDER}" stroke-width="1"/>'
-        f'<text x="{W-20}" y="{H-7}" font-family="Segoe UI,Arial,sans-serif" font-size="9" fill="{TEXT_FAINT}" text-anchor="end">{NOW}</text>'
+        f'<text x="{W-20}" y="{H-7}" font-family="Creepster, sans-serif" font-size="9" fill="{TEXT_FAINT}" text-anchor="end">{NOW}</text>'
         f'</svg>'
     )
 
@@ -192,24 +192,24 @@ def letterboxd_card():
         else:
             rows += f'<rect x="20" y="{y+5}" width="40" height="60" fill="#21262d"/>'
 
-        rows += f'<text x="75" y="{y+35}" font-family="Segoe UI,Arial,sans-serif" font-size="15" fill="{TEXT_PRI}" font-weight="600">{film}</text>'
+        rows += f'<text x="75" y="{y+35}" font-family="Creepster, sans-serif" font-size="15" fill="{TEXT_PRI}" font-weight="600">{film}</text>'
         if stars:
-            rows += f'<text x="{W-20}" y="{y+35}" text-anchor="end" font-family="Segoe UI,Arial,sans-serif" font-size="14" fill="{YELLOW}">{esc(stars)}</text>'
+            rows += f'<text x="{W-20}" y="{y+35}" text-anchor="end" font-family="Creepster, sans-serif" font-size="14" fill="{YELLOW}">{esc(stars)}</text>'
         if i < len(films)-1:
             rows += f'<line x1="20" y1="{y+ROW_H}" x2="{W-20}" y2="{y+ROW_H}" stroke="{BORDER}" stroke-width="1" opacity="0.6"/>'
 
     return (
         f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
-        f'{get_halloween_svg_defs()}'
         f'<rect width="{W}" height="{H}" rx="0" fill="{BG}"/>'
+        f'{get_halloween_svg_defs()}'
         f'<rect width="{W-2}" height="{H-2}" x="1" y="1" rx="0" fill="none" stroke="{BORDER}" stroke-width="1"/>'
         f'<rect width="{W}" height="36" rx="0" fill="{BG2}"/>'
         f'<rect y="28" width="{W}" height="8" fill="{BG2}"/>'
-        f'<text x="20" y="23" font-family="Segoe UI,Arial,sans-serif" font-size="10" fill="{RED}" letter-spacing="1.2" font-weight="700">RECENTLY WATCHED \u00b7 letterboxd.com/ajax_rn</text>'
+        f'<text x="20" y="23" font-family="Creepster, sans-serif" font-size="10" fill="{RED}" letter-spacing="1.2" font-weight="700">RECENTLY WATCHED \u00b7 letterboxd.com/ajax_rn</text>'
         f'<line x1="20" y1="36" x2="{W-20}" y2="36" stroke="{BORDER}" stroke-width="1"/>'
         f'{rows}'
         f'<line x1="20" y1="{H-18}" x2="{W-20}" y2="{H-18}" stroke="{BORDER}" stroke-width="1"/>'
-        f'<text x="{W-20}" y="{H-7}" font-family="Segoe UI,Arial,sans-serif" font-size="9" fill="{TEXT_FAINT}" text-anchor="end">{NOW}</text>'
+        f'<text x="{W-20}" y="{H-7}" font-family="Creepster, sans-serif" font-size="9" fill="{TEXT_FAINT}" text-anchor="end">{NOW}</text>'
         f'</svg>'
     )
 
@@ -261,7 +261,7 @@ def lastfm_card():
         color = colors[i % len(colors)]
         
         # Label
-        rows += f'<text x="20" y="{y+32}" font-family="Segoe UI,Arial,sans-serif" font-size="16" fill="{TEXT_PRI}" font-weight="600" text-transform="uppercase">{esc(tag)}</text>'
+        rows += f'<text x="20" y="{y+32}" font-family="Creepster, sans-serif" font-size="16" fill="{TEXT_PRI}" font-weight="600" text-transform="uppercase">{esc(tag)}</text>'
         
         # Bar (only if not chilling)
         if tag != "Just chilling (no music lately)":
@@ -273,23 +273,23 @@ def lastfm_card():
             rows += f'<rect x="{bar_x}" y="{y+15}" width="{bar_width}" height="24" rx="4" fill="{color}"/>'
             
             # Score Text
-            rows += f'<text x="{bar_x + 10}" y="{y+32}" font-family="Segoe UI,Arial,sans-serif" font-size="12" fill="#ffffff" font-weight="700">~{score} pts</text>'
+            rows += f'<text x="{bar_x + 10}" y="{y+32}" font-family="Creepster, sans-serif" font-size="12" fill="#ffffff" font-weight="700">~{score} pts</text>'
 
         if i < len(sorted_tags)-1:
             rows += f'<line x1="20" y1="{y+ROW_H}" x2="{W-20}" y2="{y+ROW_H}" stroke="{BORDER}" stroke-width="1" opacity="0.6"/>'
 
     return (
         f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
-        f'{get_halloween_svg_defs()}'
         f'<rect width="{W}" height="{H}" rx="0" fill="{BG}"/>'
+        f'{get_halloween_svg_defs()}'
         f'<rect width="{W-2}" height="{H-2}" x="1" y="1" rx="0" fill="none" stroke="{BORDER}" stroke-width="1"/>'
         f'<rect width="{W}" height="36" rx="0" fill="{BG2}"/>'
         f'<rect y="28" width="{W}" height="8" fill="{BG2}"/>'
-        f'<text x="20" y="23" font-family="Segoe UI,Arial,sans-serif" font-size="10" fill="#d35400" letter-spacing="1.2" font-weight="700">TOP TAGS (LAST 30 DAYS) \u00b7 last.fm/user/ajaxmanson</text>'
+        f'<text x="20" y="23" font-family="Creepster, sans-serif" font-size="10" fill="#d35400" letter-spacing="1.2" font-weight="700">TOP TAGS (LAST 30 DAYS) \u00b7 last.fm/user/ajaxmanson</text>'
         f'<line x1="20" y1="36" x2="{W-20}" y2="36" stroke="{BORDER}" stroke-width="1"/>'
         f'{rows}'
         f'<line x1="20" y1="{H-18}" x2="{W-20}" y2="{H-18}" stroke="{BORDER}" stroke-width="1"/>'
-        f'<text x="{W-20}" y="{H-7}" font-family="Segoe UI,Arial,sans-serif" font-size="9" fill="{TEXT_FAINT}" text-anchor="end">{NOW}</text>'
+        f'<text x="{W-20}" y="{H-7}" font-family="Creepster, sans-serif" font-size="9" fill="{TEXT_FAINT}" text-anchor="end">{NOW}</text>'
         f'</svg>'
     )
 
