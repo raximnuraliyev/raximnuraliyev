@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Illustrated Cozy Gothic Adventure — GitHub Profile SVG Generator
-Generates all SVG assets for raximnuraliyev's Halloween-themed profile.
+Black & White Gothic Halloween — GitHub Profile SVG Generator
+Monochrome ink-etching aesthetic. No purple. Steam-style clean headers.
 """
 import re, urllib.request, urllib.parse, base64, json, random
 from datetime import datetime
@@ -12,19 +12,18 @@ ROOT   = Path(__file__).parent.parent
 ASSETS = ROOT / "assets"
 ASSETS.mkdir(exist_ok=True)
 
-# ── COLOR PALETTE: Illustrated Cozy Gothic ─────────────────
-BG        = "#1A0F2B"
-BG2       = "#120A1F"
-BG3       = "#241540"
-BORDER    = "#3D2A5C"
-GLOW      = "#4ADE80"
-ORANGE    = "#F97316"
-PARCHMENT = "#F7E7C8"
-TEXT_PRI  = "#E8D5B5"
-TEXT_MUT  = "#9B8BB0"
-TEXT_FAINT= "#5C4A7A"
-GOLD      = "#D4A843"
-CRIMSON   = "#8B2252"
+# ── COLOR PALETTE: Monochrome Gothic ───────────────────────
+BG        = "#0D0D0D"   # Near-black
+BG2       = "#161616"   # Slightly lighter panel
+BG3       = "#1E1E1E"   # Card surface
+BORDER    = "#2A2A2A"   # Subtle border
+BORDER_LT = "#3A3A3A"   # Lighter border accent
+TEXT_PRI  = "#E0E0E0"   # Primary text — warm white
+TEXT_SEC  = "#999999"   # Secondary text
+TEXT_DIM  = "#555555"   # Dim text
+ACCENT    = "#C8C8C8"   # Light accent for headers
+GOLD      = "#B8860B"   # Dark goldenrod for stars — the ONLY color accent
+WHITE     = "#FFFFFF"
 
 try:
     from datetime import timezone
@@ -39,54 +38,43 @@ def get_icon_b64(idx):
     except:
         return ""
 
-def svg_gothic_defs(w, h):
+def svg_defs():
     return (
         '<defs>'
-        '<radialGradient id="bgGlow" cx="50%" cy="40%" r="70%">'
-        '<stop offset="0%" stop-color="#2A1845"/>'
-        f'<stop offset="60%" stop-color="{BG}"/>'
-        '<stop offset="100%" stop-color="#0D0718"/>'
-        '</radialGradient>'
-        '<filter id="greenGlow" x="-20%" y="-20%" width="140%" height="140%">'
-        '<feGaussianBlur stdDeviation="2" result="blur"/>'
-        '<feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>'
-        '</filter>'
-        '<filter id="orangeGlow" x="-30%" y="-30%" width="160%" height="160%">'
-        '<feGaussianBlur stdDeviation="4" result="blur"/>'
-        '<feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>'
-        '</filter>'
+        '<linearGradient id="fadeEdge" x1="0" y1="0" x2="1" y2="0">'
+        f'<stop offset="0%" stop-color="{BORDER}" stop-opacity="0"/>'
+        f'<stop offset="15%" stop-color="{BORDER}" stop-opacity="0.6"/>'
+        f'<stop offset="50%" stop-color="{BORDER}" stop-opacity="1"/>'
+        f'<stop offset="85%" stop-color="{BORDER}" stop-opacity="0.6"/>'
+        f'<stop offset="100%" stop-color="{BORDER}" stop-opacity="0"/>'
+        '</linearGradient>'
         '</defs>'
     )
 
-def svg_gothic_bg(w, h, corner_icons=None):
-    result = f'<rect width="{w}" height="{h}" rx="12" fill="url(#bgGlow)"/>'
-    result += f'<rect x="2" y="2" width="{w-4}" height="{h-4}" rx="10" fill="none" stroke="{BORDER}" stroke-width="1.5" stroke-dasharray="4,2"/>'
-    result += f'<rect x="5" y="5" width="{w-10}" height="{h-10}" rx="8" fill="none" stroke="{BORDER}" stroke-width="0.5" opacity="0.5"/>'
-    random.seed(42)
-    for _ in range(15):
-        fx, fy = random.randint(10, w-10), random.randint(10, h-10)
-        fr, fo = random.uniform(1, 3), random.uniform(0.05, 0.15)
-        result += f'<circle cx="{fx}" cy="{fy}" r="{fr:.1f}" fill="{GLOW}" opacity="{fo:.2f}"/>'
-    if corner_icons:
-        for (ib, x, y, s, o) in corner_icons:
+def svg_card_bg(w, h, icons=None):
+    """Minimal dark card background with thin border and optional faded icons."""
+    r = f'<rect width="{w}" height="{h}" rx="6" fill="{BG}"/>'
+    r += f'<rect x="1" y="1" width="{w-2}" height="{h-2}" rx="5" fill="none" stroke="{BORDER}" stroke-width="1"/>'
+    if icons:
+        for (ib, x, y, s, o) in icons:
             if ib:
-                result += f'<image href="{ib}" x="{x}" y="{y}" width="{s}" height="{s}" opacity="{o}"/>'
-    return result
+                r += f'<image href="{ib}" x="{x}" y="{y}" width="{s}" height="{s}" opacity="{o}"/>'
+    return r
 
-def svg_header_bar(w, label, color=None):
-    c = color or GLOW
+def svg_steam_header(w, label):
+    """Steam-style header bar — clean, no emoji, just text with thin line."""
     return (
-        f'<rect x="5" y="5" width="{w-10}" height="36" rx="4" fill="{BG2}"/>'
-        f'<rect x="5" y="33" width="{w-10}" height="8" rx="0" fill="{BG2}"/>'
-        f'<line x1="20" y1="41" x2="{w-20}" y2="41" stroke="{BORDER}" stroke-width="1"/>'
-        f'<text x="20" y="28" font-family="Georgia, serif" font-size="11" fill="{c}" '
-        f'letter-spacing="2" font-weight="700" filter="url(#greenGlow)">{label}</text>'
+        f'<rect x="0" y="0" width="{w}" height="38" rx="6" fill="{BG2}"/>'
+        f'<rect x="0" y="30" width="{w}" height="8" fill="{BG2}"/>'
+        f'<text x="18" y="25" font-family="Georgia, serif" font-size="11" fill="{ACCENT}" '
+        f'letter-spacing="3" font-weight="400" text-transform="uppercase">{label}</text>'
+        f'<line x1="15" y1="38" x2="{w-15}" y2="38" stroke="{BORDER_LT}" stroke-width="0.5"/>'
     )
 
 def svg_footer(w, h):
     return (
-        f'<line x1="20" y1="{h-22}" x2="{w-20}" y2="{h-22}" stroke="{BORDER}" stroke-width="0.5" opacity="0.5"/>'
-        f'<text x="{w-15}" y="{h-8}" font-family="Georgia, serif" font-size="8" fill="{TEXT_FAINT}" '
+        f'<line x1="15" y1="{h-20}" x2="{w-15}" y2="{h-20}" stroke="{BORDER}" stroke-width="0.3"/>'
+        f'<text x="{w-12}" y="{h-7}" font-family="Georgia, serif" font-size="8" fill="{TEXT_DIM}" '
         f'text-anchor="end" font-style="italic">{NOW}</text>'
     )
 
@@ -118,66 +106,58 @@ def get_b64_image(url):
 
 
 # ═══════════════════════════════════════════════════════════
-#  HEADER BANNER
+#  HEADER BANNER — Clean monochrome with scattered stickers
 # ═══════════════════════════════════════════════════════════
 def header_banner():
-    W, H = 800, 200
+    W, H = 800, 180
     icon_tl = get_icon_b64(2)
     icon_tr = get_icon_b64(3)
     icon_bl = get_icon_b64(6)
     icon_br = get_icon_b64(1)
     corners = []
-    if icon_tl: corners.append((icon_tl, 15, 15, 80, 0.4))
-    if icon_tr: corners.append((icon_tr, W-95, 15, 80, 0.4))
-    if icon_bl: corners.append((icon_bl, 30, H-75, 55, 0.25))
-    if icon_br: corners.append((icon_br, W-85, H-75, 55, 0.25))
+    if icon_tl: corners.append((icon_tl, 12, 10, 75, 0.35))
+    if icon_tr: corners.append((icon_tr, W-87, 10, 75, 0.35))
+    if icon_bl: corners.append((icon_bl, 25, H-65, 50, 0.2))
+    if icon_br: corners.append((icon_br, W-75, H-65, 50, 0.2))
 
     return (
         f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
-        f'{svg_gothic_defs(W, H)}'
-        f'{svg_gothic_bg(W, H, corner_icons=corners)}'
-        f'<text x="{W//2}" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="42" font-weight="700" fill="{ORANGE}" opacity="0.3" filter="url(#orangeGlow)">Rakhim Nuraliyev</text>'
-        f'<text x="{W//2}" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="42" font-weight="700" fill="{PARCHMENT}">Rakhim Nuraliyev</text>'
-        f'<text x="{W//2}" y="120" text-anchor="middle" font-family="Georgia, serif" font-size="13" fill="{GLOW}" font-style="italic" filter="url(#greenGlow)" letter-spacing="3">PDP University \u2014 B.S. Software Development</text>'
-        f'<line x1="{W//2-120}" y1="135" x2="{W//2+120}" y2="135" stroke="{BORDER}" stroke-width="1"/>'
-        f'<circle cx="{W//2}" cy="135" r="3" fill="{GLOW}" opacity="0.5"/>'
-        f'<circle cx="{W//2-120}" cy="135" r="2" fill="{ORANGE}" opacity="0.4"/>'
-        f'<circle cx="{W//2+120}" cy="135" r="2" fill="{ORANGE}" opacity="0.4"/>'
-        f'<text x="{W//2}" y="165" text-anchor="middle" font-family="Georgia, serif" font-size="10" fill="{TEXT_MUT}" letter-spacing="5">\u2620 ILLUSTRATED COZY GOTHIC ADVENTURE \u2620</text>'
+        f'{svg_defs()}'
+        f'{svg_card_bg(W, H, icons=corners)}'
+        # Title
+        f'<text x="{W//2}" y="82" text-anchor="middle" font-family="Georgia, serif" font-size="40" font-weight="700" fill="{WHITE}">Rakhim Nuraliyev</text>'
+        # Thin ornamental line
+        f'<line x1="{W//2-100}" y1="100" x2="{W//2+100}" y2="100" stroke="url(#fadeEdge)" stroke-width="1"/>'
+        # Subtitle
+        f'<text x="{W//2}" y="120" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="{TEXT_SEC}" font-style="italic" letter-spacing="2">PDP University \u2014 B.S. Software Development</text>'
+        # Bottom tagline
+        f'<text x="{W//2}" y="155" text-anchor="middle" font-family="Georgia, serif" font-size="9" fill="{TEXT_DIM}" letter-spacing="6">SOFTWARE ENGINEER \u00b7 GAME DEV \u00b7 CREATIVE</text>'
         f'</svg>'
     )
 
 
 # ═══════════════════════════════════════════════════════════
-#  DIVIDER
+#  DIVIDER — Minimal ornamental
 # ═══════════════════════════════════════════════════════════
 def divider_svg():
-    W, H = 800, 30
+    W, H = 800, 20
     mid = W // 2
     return (
         f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
-        f'<defs><linearGradient id="divFade" x1="0" y1="0" x2="1" y2="0">'
-        f'<stop offset="0%" stop-color="{BORDER}" stop-opacity="0"/>'
-        f'<stop offset="30%" stop-color="{BORDER}" stop-opacity="1"/>'
-        f'<stop offset="70%" stop-color="{BORDER}" stop-opacity="1"/>'
-        f'<stop offset="100%" stop-color="{BORDER}" stop-opacity="0"/>'
-        f'</linearGradient></defs>'
-        f'<line x1="50" y1="{H//2}" x2="{W-50}" y2="{H//2}" stroke="url(#divFade)" stroke-width="1"/>'
-        f'<polygon points="{mid},{H//2-6} {mid+6},{H//2} {mid},{H//2+6} {mid-6},{H//2}" fill="{BG}" stroke="{GLOW}" stroke-width="1"/>'
-        f'<circle cx="{mid}" cy="{H//2}" r="2" fill="{GLOW}" opacity="0.6"/>'
-        f'<circle cx="{mid-40}" cy="{H//2}" r="1.5" fill="{ORANGE}" opacity="0.4"/>'
-        f'<circle cx="{mid+40}" cy="{H//2}" r="1.5" fill="{ORANGE}" opacity="0.4"/>'
-        f'<circle cx="{mid-80}" cy="{H//2}" r="1" fill="{BORDER}" opacity="0.6"/>'
-        f'<circle cx="{mid+80}" cy="{H//2}" r="1" fill="{BORDER}" opacity="0.6"/>'
+        f'{svg_defs()}'
+        f'<line x1="100" y1="{H//2}" x2="{W-100}" y2="{H//2}" stroke="url(#fadeEdge)" stroke-width="0.5"/>'
+        f'<circle cx="{mid}" cy="{H//2}" r="2" fill="{BORDER_LT}"/>'
+        f'<circle cx="{mid-30}" cy="{H//2}" r="1" fill="{BORDER}" opacity="0.5"/>'
+        f'<circle cx="{mid+30}" cy="{H//2}" r="1" fill="{BORDER}" opacity="0.5"/>'
         f'</svg>'
     )
 
 
 # ═══════════════════════════════════════════════════════════
-#  PARCHMENT INFO CARD
+#  INFO CARD — Clean dark card (no parchment)
 # ═══════════════════════════════════════════════════════════
 def info_card():
-    W, H = 800, 340
+    W, H = 800, 310
     lines_data = [
         ("name:", "Rakhim Nuraliyev"),
         ("education:", "PDP University \u2014 B.S. Software Development"),
@@ -195,48 +175,34 @@ def info_card():
         ("  2025:", ""),
         ("    -", "GDG DevFest Uzbekistan"),
     ]
-    icon_scroll = get_icon_b64(9)
-    
+    icon_deco = get_icon_b64(9)
+    icons = []
+    if icon_deco: icons.append((icon_deco, W-100, 15, 65, 0.12))
+
     result = (
         f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
-        f'{svg_gothic_defs(W, H)}'
-        f'<rect width="{W}" height="{H}" rx="12" fill="url(#bgGlow)"/>'
-        f'<rect x="3" y="3" width="{W-6}" height="{H-6}" rx="10" fill="none" stroke="{BORDER}" stroke-width="1.5" stroke-dasharray="4,2"/>'
-        f'<rect x="30" y="25" width="{W-60}" height="{H-50}" rx="6" fill="{PARCHMENT}" opacity="0.92"/>'
-        f'<rect x="30" y="25" width="{W-60}" height="{H-50}" rx="6" fill="none" stroke="#8B7355" stroke-width="2"/>'
-        f'<rect x="33" y="28" width="{W-66}" height="{H-56}" rx="4" fill="none" stroke="#A08060" stroke-width="0.5" opacity="0.5"/>'
-        f'<ellipse cx="{W//2}" cy="25" rx="{(W-60)//2}" ry="6" fill="#D4C4A0"/>'
-        f'<ellipse cx="{W//2}" cy="25" rx="{(W-60)//2}" ry="4" fill="{PARCHMENT}"/>'
-        f'<ellipse cx="{W//2}" cy="{H-25}" rx="{(W-60)//2}" ry="6" fill="#D4C4A0"/>'
-        f'<ellipse cx="{W//2}" cy="{H-25}" rx="{(W-60)//2}" ry="4" fill="{PARCHMENT}"/>'
+        f'{svg_defs()}'
+        f'{svg_card_bg(W, H, icons=icons)}'
+        f'{svg_steam_header(W, "PROFILE")}'
     )
     
-    if icon_scroll:
-        result += f'<image href="{icon_scroll}" x="{W-130}" y="40" width="70" height="70" opacity="0.15"/>'
-    
-    y_start = 55
-    line_h = 18
+    y_start = 60
+    line_h = 17
     for i, (key, val) in enumerate(lines_data):
         y = y_start + i * line_h
         if key:
-            result += f'<text x="55" y="{y}" font-family="Georgia, serif" font-size="12" fill="#4F2421" font-weight="700">{esc(key)}</text>'
+            result += f'<text x="22" y="{y}" font-family="Consolas, monospace" font-size="12" fill="{ACCENT}" font-weight="700">{esc(key)}</text>'
         if val:
-            x_off = 55 + len(key) * 7.2 + 5 if key else 55
-            result += f'<text x="{x_off}" y="{y}" font-family="Georgia, serif" font-size="12" fill="#6D472F">{esc(val)}</text>'
+            x_off = 22 + len(key) * 7.2 + 6 if key else 22
+            result += f'<text x="{x_off}" y="{y}" font-family="Consolas, monospace" font-size="12" fill="{TEXT_SEC}">{esc(val)}</text>'
     
-    random.seed(99)
-    for _ in range(10):
-        fx = random.randint(5, W-5)
-        fy = random.choice(list(range(5, 25)) + list(range(H-25, H-5)))
-        fr = random.uniform(1, 2.5)
-        result += f'<circle cx="{fx}" cy="{fy}" r="{fr:.1f}" fill="{GLOW}" opacity="0.08"/>'
-    
+    result += svg_footer(W, H)
     result += '</svg>'
     return result
 
 
 # ═══════════════════════════════════════════════════════════
-#  GOODREADS — Leatherbound Tome
+#  GOODREADS
 # ═══════════════════════════════════════════════════════════
 def goodreads_card():
     root = fetch_xml("https://www.goodreads.com/review/list_rss/202996478-ajax?shelf=currently-reading")
@@ -256,36 +222,34 @@ def goodreads_card():
     if not books:
         books = [("No books currently reading", "", "", "")]
 
-    W, ROW_H, Y0 = 800, 75, 70
-    H = Y0 + len(books) * ROW_H + 30
-    icon_tome = get_icon_b64(0)
-    corners = []
-    if icon_tome: corners.append((icon_tome, W-90, 8, 50, 0.25))
+    W, ROW_H, Y0 = 800, 72, 55
+    H = Y0 + len(books) * ROW_H + 25
+    icon = get_icon_b64(0)
+    icons = []
+    if icon: icons.append((icon, W-75, 5, 40, 0.15))
 
     result = (
         f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
-        f'{svg_gothic_defs(W, H)}'
-        f'{svg_gothic_bg(W, H, corner_icons=corners)}'
-        f'<rect x="5" y="5" width="12" height="{H-10}" rx="2" fill="#3D2211" opacity="0.6"/>'
-        f'<line x1="11" y1="10" x2="11" y2="{H-10}" stroke="#5C3A20" stroke-width="1" opacity="0.5"/>'
-        f'{svg_header_bar(W, "\U0001F4D6 CURRENTLY READING \u00b7 goodreads.com/202996478-ajax", GLOW)}'
+        f'{svg_defs()}'
+        f'{svg_card_bg(W, H, icons=icons)}'
+        f'{svg_steam_header(W, "CURRENTLY READING")}'
     )
     
     for i, (t, a, pub, img) in enumerate(books):
         y = Y0 + i * ROW_H
         if img:
-            result += f'<rect x="28" y="{y+4}" width="44" height="64" rx="2" fill="{BORDER}" opacity="0.5"/>'
-            result += f'<image x="30" y="{y+6}" width="40" height="60" preserveAspectRatio="xMidYMid slice" href="{img}"/>'
+            result += f'<rect x="17" y="{y+3}" width="42" height="62" rx="2" fill="{BORDER}"/>'
+            result += f'<image x="18" y="{y+4}" width="40" height="60" preserveAspectRatio="xMidYMid slice" href="{img}"/>'
         else:
-            result += f'<rect x="30" y="{y+6}" width="40" height="60" rx="2" fill="{BG3}"/>'
-        result += f'<text x="85" y="{y+28}" font-family="Georgia, serif" font-size="14" fill="{TEXT_PRI}" font-weight="600">{t}</text>'
+            result += f'<rect x="18" y="{y+4}" width="40" height="60" rx="2" fill="{BG3}"/>'
+        result += f'<text x="72" y="{y+26}" font-family="Georgia, serif" font-size="14" fill="{TEXT_PRI}" font-weight="600">{t}</text>'
         sub = []
         if a: sub.append(f"by {a}")
         if pub: sub.append(f"({pub})")
         if sub:
-            result += f'<text x="85" y="{y+48}" font-family="Georgia, serif" font-size="11" fill="{TEXT_MUT}" font-style="italic">{" ".join(sub)}</text>'
+            result += f'<text x="72" y="{y+45}" font-family="Georgia, serif" font-size="11" fill="{TEXT_SEC}" font-style="italic">{" ".join(sub)}</text>'
         if i < len(books)-1:
-            result += f'<line x1="30" y1="{y+ROW_H}" x2="{W-30}" y2="{y+ROW_H}" stroke="{BORDER}" stroke-width="0.5" opacity="0.4" stroke-dasharray="3,3"/>'
+            result += f'<line x1="18" y1="{y+ROW_H}" x2="{W-18}" y2="{y+ROW_H}" stroke="{BORDER}" stroke-width="0.5" stroke-dasharray="2,4"/>'
     
     result += svg_footer(W, H)
     result += '</svg>'
@@ -293,7 +257,7 @@ def goodreads_card():
 
 
 # ═══════════════════════════════════════════════════════════
-#  LAST.FM — Cursed Music Record
+#  LAST.FM
 # ═══════════════════════════════════════════════════════════
 def lastfm_card():
     API_KEY = "b25b959554ed76058ac220b7b2e0a026"
@@ -323,36 +287,34 @@ def lastfm_card():
         sorted_tags = [("just chilling... no music lately", 1)]
     max_score = sorted_tags[0][1] if sorted_tags[0][1] > 0 else 1
 
-    W, ROW_H, Y0 = 800, 55, 70
-    H = Y0 + len(sorted_tags) * ROW_H + 30
-    icon_music = get_icon_b64(5)
-    corners = []
-    if icon_music: corners.append((icon_music, W-85, 8, 45, 0.25))
-    bar_colors = [GLOW, ORANGE, GOLD, CRIMSON, TEXT_FAINT]
+    W, ROW_H, Y0 = 800, 50, 55
+    H = Y0 + len(sorted_tags) * ROW_H + 25
+    icon = get_icon_b64(5)
+    icons = []
+    if icon: icons.append((icon, W-75, 5, 40, 0.15))
+    # Monochrome gradient bars — white to gray
+    bar_shades = ["#E0E0E0", "#BBBBBB", "#999999", "#777777", "#555555"]
 
     result = (
         f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
-        f'{svg_gothic_defs(W, H)}'
-        f'{svg_gothic_bg(W, H, corner_icons=corners)}'
-        f'<circle cx="30" cy="{H//2}" r="15" fill="none" stroke="{BORDER}" stroke-width="0.5" opacity="0.3"/>'
-        f'<circle cx="30" cy="{H//2}" r="10" fill="none" stroke="{BORDER}" stroke-width="0.5" opacity="0.2"/>'
-        f'<circle cx="30" cy="{H//2}" r="5" fill="{GLOW}" opacity="0.1"/>'
-        f'{svg_header_bar(W, "\U0001F3B5 TOP TAGS (LAST 30 DAYS) \u00b7 last.fm/user/ajaxmanson", ORANGE)}'
+        f'{svg_defs()}'
+        f'{svg_card_bg(W, H, icons=icons)}'
+        f'{svg_steam_header(W, "TOP TAGS \u00b7 LAST 30 DAYS")}'
     )
     
     for i, (tag, score) in enumerate(sorted_tags):
         y = Y0 + i * ROW_H
-        color = bar_colors[i % len(bar_colors)]
-        result += f'<text x="30" y="{y+32}" font-family="Georgia, serif" font-size="15" fill="{TEXT_PRI}" font-weight="600">{esc(tag)}</text>'
+        shade = bar_shades[i % len(bar_shades)]
+        result += f'<text x="22" y="{y+30}" font-family="Georgia, serif" font-size="14" fill="{TEXT_PRI}" font-weight="600">{esc(tag)}</text>'
         if tag != "just chilling... no music lately":
-            bar_max = 460
-            bar_width = max(20, int((score / max_score) * bar_max))
-            bar_x = W - 30 - bar_max
-            result += f'<rect x="{bar_x}" y="{y+18}" width="{bar_max}" height="20" rx="10" fill="{BG2}" opacity="0.8"/>'
-            result += f'<rect x="{bar_x}" y="{y+18}" width="{bar_width}" height="20" rx="10" fill="{color}" opacity="0.8"/>'
-            result += f'<text x="{bar_x+12}" y="{y+33}" font-family="Georgia, serif" font-size="10" fill="#ffffff" font-weight="700">~{score}</text>'
+            bar_max = 440
+            bar_width = max(18, int((score / max_score) * bar_max))
+            bar_x = W - 22 - bar_max
+            result += f'<rect x="{bar_x}" y="{y+16}" width="{bar_max}" height="18" rx="9" fill="{BG3}"/>'
+            result += f'<rect x="{bar_x}" y="{y+16}" width="{bar_width}" height="18" rx="9" fill="{shade}" opacity="0.7"/>'
+            result += f'<text x="{bar_x+10}" y="{y+30}" font-family="Georgia, serif" font-size="9" fill="{BG}" font-weight="700">~{score}</text>'
         if i < len(sorted_tags)-1:
-            result += f'<line x1="30" y1="{y+ROW_H}" x2="{W-30}" y2="{y+ROW_H}" stroke="{BORDER}" stroke-width="0.5" opacity="0.3" stroke-dasharray="3,3"/>'
+            result += f'<line x1="22" y1="{y+ROW_H}" x2="{W-22}" y2="{y+ROW_H}" stroke="{BORDER}" stroke-width="0.3" stroke-dasharray="2,4"/>'
     
     result += svg_footer(W, H)
     result += '</svg>'
@@ -360,7 +322,7 @@ def lastfm_card():
 
 
 # ═══════════════════════════════════════════════════════════
-#  LETTERBOXD — Skeletal Film Reel
+#  LETTERBOXD
 # ═══════════════════════════════════════════════════════════
 def star_str(rating_str):
     if not rating_str: return ""
@@ -392,35 +354,31 @@ def letterboxd_card():
     if not films:
         films = [("No recent films found", "", "")]
 
-    W, ROW_H, Y0 = 800, 75, 70
-    H = Y0 + len(films) * ROW_H + 30
-    icon_film = get_icon_b64(4)
-    corners = []
-    if icon_film: corners.append((icon_film, W-85, 8, 45, 0.25))
+    W, ROW_H, Y0 = 800, 72, 55
+    H = Y0 + len(films) * ROW_H + 25
+    icon = get_icon_b64(4)
+    icons = []
+    if icon: icons.append((icon, W-75, 5, 40, 0.15))
 
     result = (
         f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
-        f'{svg_gothic_defs(W, H)}'
-        f'{svg_gothic_bg(W, H, corner_icons=corners)}'
-        f'<rect x="5" y="5" width="14" height="{H-10}" rx="2" fill="{BG2}" opacity="0.5"/>'
+        f'{svg_defs()}'
+        f'{svg_card_bg(W, H, icons=icons)}'
+        f'{svg_steam_header(W, "RECENTLY WATCHED")}'
     )
-    for j in range(0, H-20, 20):
-        result += f'<rect x="7" y="{j+8}" width="10" height="8" rx="2" fill="{BG}" opacity="0.6"/>'
-    
-    result += svg_header_bar(W, "\U0001F3AC RECENTLY WATCHED \u00b7 letterboxd.com/ajax_rn", CRIMSON)
     
     for i, (film, stars, img) in enumerate(films):
         y = Y0 + i * ROW_H
         if img:
-            result += f'<rect x="28" y="{y+4}" width="44" height="64" rx="2" fill="{BORDER}" opacity="0.5"/>'
-            result += f'<image x="30" y="{y+6}" width="40" height="60" preserveAspectRatio="xMidYMid slice" href="{img}"/>'
+            result += f'<rect x="17" y="{y+3}" width="42" height="62" rx="2" fill="{BORDER}"/>'
+            result += f'<image x="18" y="{y+4}" width="40" height="60" preserveAspectRatio="xMidYMid slice" href="{img}"/>'
         else:
-            result += f'<rect x="30" y="{y+6}" width="40" height="60" rx="2" fill="{BG3}"/>'
-        result += f'<text x="85" y="{y+35}" font-family="Georgia, serif" font-size="14" fill="{TEXT_PRI}" font-weight="600">{film}</text>'
+            result += f'<rect x="18" y="{y+4}" width="40" height="60" rx="2" fill="{BG3}"/>'
+        result += f'<text x="72" y="{y+35}" font-family="Georgia, serif" font-size="14" fill="{TEXT_PRI}" font-weight="600">{film}</text>'
         if stars:
-            result += f'<text x="{W-30}" y="{y+35}" text-anchor="end" font-family="Georgia, serif" font-size="14" fill="{GOLD}">{esc(stars)}</text>'
+            result += f'<text x="{W-22}" y="{y+35}" text-anchor="end" font-family="Georgia, serif" font-size="14" fill="{GOLD}">{esc(stars)}</text>'
         if i < len(films)-1:
-            result += f'<line x1="30" y1="{y+ROW_H}" x2="{W-30}" y2="{y+ROW_H}" stroke="{BORDER}" stroke-width="0.5" opacity="0.4" stroke-dasharray="3,3"/>'
+            result += f'<line x1="18" y1="{y+ROW_H}" x2="{W-18}" y2="{y+ROW_H}" stroke="{BORDER}" stroke-width="0.5" stroke-dasharray="2,4"/>'
     
     result += svg_footer(W, H)
     result += '</svg>'
@@ -431,48 +389,44 @@ def letterboxd_card():
 #  FOOTER BANNER
 # ═══════════════════════════════════════════════════════════
 def footer_banner():
-    W, H = 800, 60
+    W, H = 800, 50
     icon_a = get_icon_b64(8)
     icon_b = get_icon_b64(4)
     r = (
         f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
-        f'<defs><linearGradient id="footGrad" x1="0" y1="0" x2="0" y2="1">'
-        f'<stop offset="0%" stop-color="{BG}" stop-opacity="0"/>'
-        f'<stop offset="100%" stop-color="#0D0718"/>'
-        f'</linearGradient></defs>'
-        f'<rect width="{W}" height="{H}" fill="url(#footGrad)"/>'
+        f'{svg_defs()}'
+        f'<rect width="{W}" height="{H}" fill="{BG}"/>'
+        f'<line x1="100" y1="15" x2="{W-100}" y2="15" stroke="url(#fadeEdge)" stroke-width="0.5"/>'
     )
     if icon_a:
-        r += f'<image href="{icon_a}" x="20" y="5" width="45" height="45" opacity="0.2"/>'
+        r += f'<image href="{icon_a}" x="15" y="5" width="38" height="38" opacity="0.15"/>'
     if icon_b:
-        r += f'<image href="{icon_b}" x="{W-65}" y="5" width="45" height="45" opacity="0.2"/>'
+        r += f'<image href="{icon_b}" x="{W-53}" y="5" width="38" height="38" opacity="0.15"/>'
     r += (
-        f'<text x="{W//2}" y="35" text-anchor="middle" font-family="Georgia, serif" font-size="10" fill="{TEXT_FAINT}" letter-spacing="3" font-style="italic">'
-        f'\u2620 crafted with dark magic \u2620</text>'
+        f'<text x="{W//2}" y="35" text-anchor="middle" font-family="Georgia, serif" font-size="9" fill="{TEXT_DIM}" letter-spacing="4" font-style="italic">'
+        f'crafted with dark magic</text>'
         f'</svg>'
     )
     return r
 
 
 # ═══════════════════════════════════════════════════════════
-#  GENERATE ALL
-# ═══════════════════════════════════════════════════════════
 if __name__ == "__main__":
     import sys
     sys.stdout.reconfigure(encoding='utf-8')
-    print("Generating Illustrated Cozy Gothic profile assets...")
+    print("Generating Black & White Gothic profile assets...")
     (ASSETS / "header_banner.svg").write_text(header_banner(), encoding="utf-8")
-    print("  \u2713 header_banner.svg")
+    print("  done: header_banner.svg")
     (ASSETS / "divider.svg").write_text(divider_svg(), encoding="utf-8")
-    print("  \u2713 divider.svg")
+    print("  done: divider.svg")
     (ASSETS / "info_card.svg").write_text(info_card(), encoding="utf-8")
-    print("  \u2713 info_card.svg")
+    print("  done: info_card.svg")
     (ASSETS / "goodreads_card.svg").write_text(goodreads_card(), encoding="utf-8")
-    print("  \u2713 goodreads_card.svg")
+    print("  done: goodreads_card.svg")
     (ASSETS / "lastfm_card.svg").write_text(lastfm_card(), encoding="utf-8")
-    print("  \u2713 lastfm_card.svg")
+    print("  done: lastfm_card.svg")
     (ASSETS / "letterboxd_card.svg").write_text(letterboxd_card(), encoding="utf-8")
-    print("  \u2713 letterboxd_card.svg")
+    print("  done: letterboxd_card.svg")
     (ASSETS / "footer_banner.svg").write_text(footer_banner(), encoding="utf-8")
-    print("  \u2713 footer_banner.svg")
-    print("\n\U0001F383 All Illustrated Cozy Gothic assets generated!")
+    print("  done: footer_banner.svg")
+    print("\nAll B&W Gothic assets generated.")
