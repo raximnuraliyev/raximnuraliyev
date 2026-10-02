@@ -4,6 +4,7 @@ One-off local step: turn the source images in assets/icons/ into
 background-free PNGs in assets/ornaments/ that generate_cards.py embeds.
 
 Needs Pillow, numpy and scipy (not used in CI — the PNGs are committed).
+The photo cut-outs also need rembg (its u2net model downloads on first use).
     python scripts/process_icons.py
 """
 from pathlib import Path
@@ -57,7 +58,7 @@ def drop_specks(alpha, keep=0.02):
     return alpha
 
 
-def save(rgb, alpha, name, crop=True, max_w=None):
+def save(rgb, alpha, name, crop=True, max_w=None, grey=False):
     a = (np.clip(alpha, 0, 1) * 255).astype(np.uint8)
     img = Image.fromarray(np.dstack([np.clip(rgb, 0, 255).astype(np.uint8), a]), "RGBA")
     if crop:
@@ -65,6 +66,8 @@ def save(rgb, alpha, name, crop=True, max_w=None):
         img = img.crop(bbox)
     if max_w and img.width > max_w:
         img = img.resize((max_w, round(img.height * max_w / img.width)), Image.LANCZOS)
+    if grey:   # two channels instead of four — photos embed at ~half the size
+        img = img.convert("LA")
     img.save(OUT / name, optimize=True)
     print(f"  {name:22s} {img.size}")
 
@@ -155,6 +158,52 @@ def garland():
     save(col, alpha, "pumpkin_garland.png", max_w=600)
 
 
+# ── Ink drawings: black on paper -> silver ink on transparent ─────
+def ink(src, name, white=225, black=60, color=SILVER, max_w=360):
+    rgb = load(src)
+    alpha = ink_to_alpha(lum(rgb), white, black)
+    e = 8                                   # scanned page edges
+    alpha[:e], alpha[-e:], alpha[:, :e], alpha[:, -e:] = 0, 0, 0, 0
+    alpha = drop_specks(alpha, 0.004)
+    save(solid(rgb.shape, color), alpha, name, max_w=max_w)
+
+
+# ── Photos: AI cut-out of the person, toned to monochrome ─────────
+def photo(src, name, max_w=420):
+    try:
+        from rembg import remove, new_session
+    except ImportError:
+        print(f"  {name:22s} skipped (pip install rembg)")
+        return
+    global _rembg
+    if "_rembg" not in globals():
+        _rembg = new_session("u2net")
+    cut = np.asarray(remove(Image.open(SRC / src).convert("RGB"), session=_rembg)).astype(np.float32)
+    grey = lum(cut[..., :3])[..., None]
+    alpha = drop_specks(cut[..., 3] / 255)
+    save(np.broadcast_to(grey, cut.shape[:2] + (3,)).copy(), alpha, name, max_w=max_w, grey=True)
+
+
+# ── Portrait on black: the black *is* the background, key it out ───
+def glow_portrait(src, name, max_w=360):
+    rgb = load(src)
+    L = lum(rgb)
+    alpha = drop_specks(np.clip((L - 35) / 90, 0, 1), 0.01)
+    save(solid(rgb.shape, BONE) * (L[..., None] / 255) ** 0.4, alpha, name, max_w=max_w)
+
+
+# ── Close-up eyes: nothing to cut away, so dissolve the edges ─────
+def eyes():
+    rgb = load("eyes.jpg")
+    h, w = rgb.shape[:2]
+    ys, xs = np.mgrid[:h, :w]
+    r = np.sqrt(((xs - w / 2) / (w * 0.52)) ** 2 + ((ys - h * 0.5) / (h * 0.56)) ** 2)
+    alpha = np.clip((1 - r) / 0.6, 0, 1) ** 2
+    grey = lum(rgb)[..., None]
+    rgb = grey + (rgb - grey) * 0.45        # keep a ghost of the green iris
+    save(rgb * 0.85, alpha, "eyes.png", crop=False, max_w=520)   # cropping would clip the fade
+
+
 if __name__ == "__main__":
     print("Processing ornaments...")
     frame()
@@ -166,4 +215,18 @@ if __name__ == "__main__":
     sticker("snoopy_reading.jpg", "snoopy.png", 232)
     sticker("spotify_code.jpg", "spotify_code.png", 236, max_w=320)
     garland()
+    ink("billie_letter.jpg", "billie_letter.png", max_w=300)
+    ink("you_with_me.jpg", "you_with_me.png", max_w=220)
+    ink("signature.jpg", "signature.png", max_w=260)
+    ink("sticker_63.jpg", "sticker_63.png", white=200, max_w=220)
+    ink("winged.jpg", "winged.png", max_w=260)
+    ink("snake.jpg", "snake.png", white=215, max_w=260)
+    ink("blohsh.jpg", "blohsh.png", max_w=120)
+    ink("centipede.jpg", "centipede.png", max_w=140)
+    ink("spiderweb.jpg", "spiderweb.png", white=222, max_w=300)
+    photo("newt_1.jpg", "newt_1.png")
+    photo("newt_2.jpg", "newt_2.png")
+    photo("billie_portrait.jpg", "billie_portrait.png")
+    glow_portrait("billie_glow.jpg", "billie_glow.png")
+    eyes()
     print("done.")

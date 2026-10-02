@@ -66,14 +66,25 @@ def trunc(s, n):
     s = s.strip()
     return esc(s[:n-1] + "…") if len(s) > n else esc(s)
 
+def png_size(name):
+    """(width, height) straight from the PNG header."""
+    with open(ORN / f"{name}.png", "rb") as f:
+        head = f.read(24)
+    return int.from_bytes(head[16:20], "big"), int.from_bytes(head[20:24], "big")
+
 def img(name, x, y, w, h=None, opacity=1, extra=""):
     uri = orn(name)
     if not uri: return ""
-    hh = f' height="{h}"' if h else ""
-    return f'<image href="{uri}" x="{x}" y="{y}" width="{w}"{hh} opacity="{opacity}" {extra}/>'
+    if h is None:   # explicit height keeps masks/transform boxes exact
+        pw, ph = png_size(name)
+        h = round(w * ph / pw, 1)
+    return f'<image href="{uri}" x="{x}" y="{y}" width="{w}" height="{h}" opacity="{opacity}" {extra}/>'
 
-def svg_open(h, font=False, defs=""):
-    style = f"<style>{creepster_face()}</style>" if font else ""
+REDUCED_MOTION = "@media (prefers-reduced-motion: reduce){*{animation:none!important}}"
+
+def svg_open(h, font=False, defs="", css=""):
+    face = creepster_face() if font else ""
+    style = f"<style>{face}{css}{REDUCED_MOTION if css else ''}</style>" if (face or css) else ""
     return (
         f'<svg width="{W}" height="{h}" viewBox="0 0 {W} {h}" xmlns="http://www.w3.org/2000/svg">'
         f'<defs>{style}'
@@ -149,6 +160,63 @@ def get_b64_image(url):
 
 
 # ═══════════════════════════════════════════════════════════
+#  HAUNTED NAME — letters rise out of the dark, float, flicker
+#  like dying candles and drip. Pure CSS inside the SVG, so it
+#  plays on GitHub (which renders README SVGs as <img>).
+# ═══════════════════════════════════════════════════════════
+# Creepster advance widths (units per 1024 em) — avoids needing fontTools in CI
+CREEPSTER_ADV = {" ": 241, "A": 456, "E": 430, "H": 468, "I": 315, "K": 504, "L": 366,
+                 "M": 672, "N": 529, "R": 474, "U": 497, "V": 440, "Y": 412}
+NAME_SIZE, NAME_TRACK = 56, 5
+
+HEADER_CSS = """
+.rise{animation:rise 1.6s cubic-bezier(.2,.8,.2,1) both}
+.ltr{transform-box:fill-box;transform-origin:50% 60%;
+     animation:float 5.5s ease-in-out infinite,flicker 9s linear infinite}
+.halo{animation:halo 4.5s ease-in-out infinite}
+.drip{transform-box:fill-box;transform-origin:50% 0;animation:drip 5s cubic-bezier(.55,0,.9,.5) infinite}
+.fly{animation:fly 16s ease-in-out infinite}
+.flap{transform-box:fill-box;transform-origin:50% 50%;animation:flap .9s ease-in-out infinite alternate}
+.moon{animation:moon 8s ease-in-out infinite}
+@keyframes rise{from{opacity:0;transform:translateY(22px);filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
+@keyframes float{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-3px) rotate(-2deg)}
+  50%{transform:translateY(-5px) rotate(0)}75%{transform:translateY(-2px) rotate(2deg)}}
+@keyframes flicker{0%,86%,90%,94%,100%{opacity:1}87%{opacity:.2}88%{opacity:.85}89%{opacity:.1}92%{opacity:.6}}
+@keyframes halo{0%,100%{opacity:.18}50%{opacity:.5}}
+@keyframes drip{0%{transform:translateY(0) scaleY(.4);opacity:0}12%{opacity:1;transform:translateY(0) scaleY(1)}
+  55%{transform:translateY(3px) scaleY(1.6);opacity:1}100%{transform:translateY(46px) scaleY(1);opacity:0}}
+@keyframes fly{0%,100%{transform:translate(0,0)}25%{transform:translate(40px,-14px)}
+  50%{transform:translate(85px,4px)}75%{transform:translate(38px,16px)}}
+@keyframes flap{from{transform:scaleY(1)}to{transform:scaleY(.72)}}
+@keyframes moon{0%,100%{opacity:.85}50%{opacity:1}}
+"""
+
+def haunted_name(text, baseline):
+    k = NAME_SIZE / 1024
+    widths = [CREEPSTER_ADV.get(c, 450) * k for c in text]
+    x = W / 2 - (sum(widths) + NAME_TRACK * (len(text) - 1)) / 2
+    font = f'font-family="{TITLE_FONT}" font-size="{NAME_SIZE}"'
+    halo, letters, drips = "", "", ""
+    for i, (c, w) in enumerate(zip(text, widths)):
+        if c != " ":
+            ch = esc(c)
+            # irregular but deterministic timing per letter
+            fd, fl = (i * 0.37) % 2.4, 6 + (i * 1.7) % 5
+            halo += f'<text x="{x:.1f}" y="{baseline}" {font}>{ch}</text>'
+            letters += (f'<g class="rise" style="animation-delay:{0.15 + i * 0.08:.2f}s">'
+                        f'<text class="ltr" x="{x:.1f}" y="{baseline}" {font} fill="{TEXT_PRI}" '
+                        f'style="animation-delay:-{fd:.2f}s,-{(i * 2.3) % fl:.2f}s;animation-duration:{5 + (i % 3) * .8:.1f}s,{fl:.1f}s">'
+                        f'{ch}</text></g>')
+            if c in "KMY":
+                cx = x + w * 0.45
+                drips += (f'<ellipse class="drip" cx="{cx:.1f}" cy="{baseline + 3}" rx="2" ry="3.2" fill="{TEXT_PRI}" '
+                          f'style="animation-delay:{1.8 + (i * 0.9) % 4:.1f}s"/>')
+        x += w + NAME_TRACK
+    return (f'<g class="halo" fill="{TEXT_PRI}" filter="url(#glow)">{halo}</g>'
+            f'{letters}{drips}')
+
+
+# ═══════════════════════════════════════════════════════════
 #  HEADER — castle under a moon, inside the top of the frame
 # ═══════════════════════════════════════════════════════════
 def header_banner():
@@ -165,14 +233,16 @@ def header_banner():
         '</linearGradient>'
         '<mask id="castleFade"><rect x="0" y="0" width="800" height="560" fill="url(#sink)"/></mask>'
     )
+    winged = img("winged", 300, 170, 120, extra='class="flap"')
+    defs += '<filter id="glow" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="5"/></filter>'
     return (
-        svg_open(H, font=True, defs=defs)
-        + f'<circle cx="430" cy="250" r="230" fill="url(#moon)"/>'
+        svg_open(H, font=True, defs=defs, css=HEADER_CSS)
+        + f'<circle class="moon" cx="430" cy="250" r="230" fill="url(#moon)"/>'
         + f'<g mask="url(#castleFade)">{img("castle", 170, 120, 420)}</g>'
+        + f'<g class="fly">{winged}</g>'
         + side_rules(H, l=(300, None))
         + img("frame_top", 0, 0, W, FRAME_TOP_H)
-        + f'<text x="{W//2}" y="462" text-anchor="middle" font-family="{TITLE_FONT}" font-size="54" '
-          f'fill="{TEXT_PRI}" letter-spacing="4">Rakhim Nuraliyev</text>'
+        + haunted_name("RAKHIM NURALIYEV", 462)
         + f'<line x1="250" y1="482" x2="550" y2="482" stroke="url(#fade)"/>{diamond(400, 482)}'
         + f'<text x="{W//2}" y="506" text-anchor="middle" font-family="{SERIF}" font-size="13" '
           f'fill="{TEXT_SEC}" font-style="italic" letter-spacing="1.5">SWE Intern @ UIC Games · Full-Stack @ BOGATIR Textile</text>'
@@ -208,6 +278,7 @@ def info_card():
         + img("frame_top", 0, -HEADER_H, W, FRAME_TOP_H)
         + heading(52, "Profile")
         + panel(PX, PY, PW, PH)
+        + img("sticker_63", 664, 262, 88, opacity=.85)
     )
     for i, (key, val) in enumerate(lines_data):
         y = PY + 28 + i * 19.5
@@ -278,12 +349,51 @@ def stack_card():
 
 
 # ═══════════════════════════════════════════════════════════
+#  THE SHRINE — cut-out portraits and ink keepsakes
+# ═══════════════════════════════════════════════════════════
+def shrine_card():
+    H = 900
+    defs = (
+        '<linearGradient id="sinkV" x1="0" y1="0" x2="0" y2="1">'
+        '<stop offset=".62" stop-color="#fff"/><stop offset="1" stop-color="#000"/>'
+        '</linearGradient>'
+        '<mask id="fadeBottom" maskContentUnits="objectBoundingBox">'
+        '<rect width="1" height="1" fill="url(#sinkV)"/></mask>'
+    )
+    css = (".blink{transform-box:fill-box;transform-origin:50% 50%;animation:blink 7s ease-in-out infinite}"
+           "@keyframes blink{0%,44%,52%,100%{transform:scaleY(1);opacity:.6}48%{transform:scaleY(.08);opacity:.3}}"
+           ".sway{transform-box:fill-box;transform-origin:50% 0;animation:sway 6s ease-in-out infinite}"
+           "@keyframes sway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}")
+    fade = 'mask="url(#fadeBottom)"'
+    return (
+        svg_open(H, font=True, defs=defs, css=css) + side_rules(H)
+        + f'<g class="sway">{img("spiderweb", 44, 0, 150, opacity=.8)}</g>'
+        + img("billie_letter", 610, 58, 140, opacity=.5)
+        + heading(52, "The Shrine")
+        # eyes watching from the dark, blinking now and then
+        + img("eyes", 255, 74, 290, extra='class="blink"')
+        # row one
+        + img("billie_portrait", 128, 248, 248, extra=fade)
+        + img("billie_glow", 404, 252, 268, extra=fade)
+        + img("blohsh", 700, 400, 46, opacity=.8)
+        + img("signature", 470, 492, 190, opacity=.8)
+        + f'<line x1="150" y1="548" x2="650" y2="548" stroke="url(#fade)"/>{diamond(400, 548)}'
+        # row two
+        + img("newt_1", 112, 562, 256, extra=fade)
+        + img("newt_2", 400, 566, 290, extra=fade)
+        + img("you_with_me", 310, 806, 180, opacity=.85)
+        + '</svg>'
+    )
+
+
+# ═══════════════════════════════════════════════════════════
 #  THE ARCHIVES — garland title
 # ═══════════════════════════════════════════════════════════
 def archives_title():
     H = 290
     return (
         svg_open(H, font=True) + side_rules(H)
+        + img("snake", 56, 40, 104, opacity=.9)
         + img("pumpkin_garland", 180, 6, 440)
         + heading(272, "The Archives")
         + '</svg>'
@@ -414,7 +524,10 @@ def letterboxd_card():
 
     PX, PW, ROW_H, Y0 = 80, 640, 74, 78
     H = Y0 + len(films) * ROW_H + 52
-    out = (svg_open(H) + side_rules(H)
+    crawl = ("@keyframes crawl{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(14px) rotate(3deg)}}"
+             ".crawl{transform-box:fill-box;transform-origin:50% 0;animation:crawl 3.2s ease-in-out infinite}")
+    out = (svg_open(H, css=crawl) + side_rules(H)
+           + f'<g class="crawl">{img("centipede", 24, 70, 38)}</g>'
            + panel(PX, 22, PW, H - 44)
            + card_title(PX + 22, 54, "RECENTLY WATCHED")
            + img("ghost", PX + PW - 92, 8, 70)
@@ -467,6 +580,7 @@ if __name__ == "__main__":
         "social_pad_l.svg":   social_pad("left"),
         "social_pad_r.svg":   social_pad("right"),
         "stack_card.svg":     stack_card(),
+        "shrine_card.svg":    shrine_card(),
         "archives_title.svg": archives_title(),
         "goodreads_card.svg": goodreads_card(),
         "lastfm_card.svg":    lastfm_card(),
