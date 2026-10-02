@@ -24,6 +24,34 @@ try:
 except ImportError:
     NOW = datetime.utcnow().strftime("%d %b %Y UTC")
 
+def get_halloween_svg_defs():
+    try:
+        with open(ROOT / "Creepster.ttf", "rb") as cf:
+            font_b64 = base64.b64encode(cf.read()).decode("utf-8")
+        style = f"<style>@font-face {{ font-family: 'Creepster'; src: url(data:font/ttf;base64,{font_b64}) format('truetype'); }} text {{ font-family: 'Creepster', sans-serif !important; letter-spacing: 1px; }}</style>"
+    except:
+        style = ""
+        
+    def get_icon(idx):
+        try:
+            with open(ASSETS / f"processed_icons/icon_{idx}.png", "rb") as ic:
+                return "data:image/png;base64," + base64.b64encode(ic.read()).decode("utf-8")
+        except:
+            return ""
+            
+    bgs = ""
+    # Add some random-looking scattered icons
+    icons_to_place = [
+        (get_icon(2), 650, -10, 120),  # Snoopy
+        (get_icon(4), 300, 20, 80),    # Pumpkin/Ghost
+        (get_icon(6), 30, 70, 90)      # Something else
+    ]
+    for b, x, y, s in icons_to_place:
+        if b:
+            bgs += f'<image href="{b}" x="{x}" y="{y}" width="{s}" height="{s}" opacity="0.12" />'
+            
+    return style + bgs
+
 def esc(s):
     return str(s).replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace('"',"&quot;")
 
@@ -105,6 +133,7 @@ def goodreads_card():
 
     return (
         f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
+        f'{get_halloween_svg_defs()}'
         f'<rect width="{W}" height="{H}" rx="0" fill="{BG}"/>'
         f'<rect width="{W-2}" height="{H-2}" x="1" y="1" rx="0" fill="none" stroke="{BORDER}" stroke-width="1"/>'
         f'<rect width="{W}" height="36" rx="0" fill="{BG2}"/>'
@@ -171,6 +200,7 @@ def letterboxd_card():
 
     return (
         f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
+        f'{get_halloween_svg_defs()}'
         f'<rect width="{W}" height="{H}" rx="0" fill="{BG}"/>'
         f'<rect width="{W-2}" height="{H-2}" x="1" y="1" rx="0" fill="none" stroke="{BORDER}" stroke-width="1"/>'
         f'<rect width="{W}" height="36" rx="0" fill="{BG2}"/>'
@@ -250,6 +280,7 @@ def lastfm_card():
 
     return (
         f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
+        f'{get_halloween_svg_defs()}'
         f'<rect width="{W}" height="{H}" rx="0" fill="{BG}"/>'
         f'<rect width="{W-2}" height="{H-2}" x="1" y="1" rx="0" fill="none" stroke="{BORDER}" stroke-width="1"/>'
         f'<rect width="{W}" height="36" rx="0" fill="{BG2}"/>'

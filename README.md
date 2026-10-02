@@ -3,21 +3,12 @@
 -->
 
 <div align="center">
-  <img src="./assets/processed_icons/icon_0.png" height="80" />
-<img src="./assets/processed_icons/icon_1.png" height="80" />
-<img src="./assets/processed_icons/icon_2.png" height="80" />
-<img src="./assets/processed_icons/icon_3.png" height="80" />
-<img src="./assets/processed_icons/icon_4.png" height="80" />
-<img src="./assets/processed_icons/icon_5.png" height="80" />
-<img src="./assets/processed_icons/icon_6.png" height="80" />
-<img src="./assets/processed_icons/icon_8.png" height="80" />
-<img src="./assets/processed_icons/icon_9.png" height="80" />
   <h1>🎃 Rakhim Nuraliyev 🍂</h1>
 </div>
 
 <div align="center">
 <a href="https://git.io/typing-svg">
-  <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=500&size=14&duration=3000&pause=1200&color=AC7F0E&center=true&vCenter=true&repeat=true&width=580&height=26&lines=SWE+Intern+%40+UIC+Games+%7C+Full-Stack+%40+BOGATIR+Textile;PDP+University+%E2%80%94+B.S.+Software+Development" />
+  <img src="https://readme-typing-svg.demolab.com?font=Creepster&weight=500&size=14&duration=3000&pause=1200&color=AC7F0E&center=true&vCenter=true&repeat=true&width=580&height=26&lines=SWE+Intern+%40+UIC+Games+%7C+Full-Stack+%40+BOGATIR+Textile;PDP+University+%E2%80%94+B.S.+Software+Development" />
 </a>
 <br>
 <img src="https://hits.sh/github.com/raximnuraliyev/views.svg?style=for-the-badge&label=Profile%20Views&color=8A3A1E" />
@@ -77,16 +68,4 @@ events:
 <br><br>
 <a href="https://letterboxd.com/ajax_rn"><img src="./assets/letterboxd_card.svg" width="100%" /></a>
 
-</div>
-
-<div align="center">
-  <img src="./assets/processed_icons/icon_0.png" height="80" />
-<img src="./assets/processed_icons/icon_1.png" height="80" />
-<img src="./assets/processed_icons/icon_2.png" height="80" />
-<img src="./assets/processed_icons/icon_3.png" height="80" />
-<img src="./assets/processed_icons/icon_4.png" height="80" />
-<img src="./assets/processed_icons/icon_5.png" height="80" />
-<img src="./assets/processed_icons/icon_6.png" height="80" />
-<img src="./assets/processed_icons/icon_8.png" height="80" />
-<img src="./assets/processed_icons/icon_9.png" height="80" />
 </div>
