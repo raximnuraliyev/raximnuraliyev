@@ -32,7 +32,7 @@ FRAME_S = W / 675                 # frame PNGs are 675 px wide
 FRAME_TOP_H = round(670 * FRAME_S)
 FRAME_BOT_H = round(530 * FRAME_S)
 HEADER_H  = 560
-PROFILE_H = 440
+PROFILE_H = 460
 
 NOW = datetime.now(timezone.utc).strftime("%d %b %Y")
 
@@ -310,15 +310,17 @@ def info_card():
         ("  -", "{ role: SWE Intern, org: UIC Games }"),
         ("  -", "{ role: Full-Stack Dev, org: BOGATIR Textile }"),
         ("events:", ""),
-        ("  2026:", ""),
-        ("    -", "ICT WEEK"),
-        ("    -", "Game Fest 2026"),
-        ("    -", "Yandex Dev Camp 2026"),
-        ("    -", "35 LVL Game Jam"),
-        ("    -", "GDG Build with AI"),
-        ("    -", "Paynet Corporate Hackathon 2026  # Team Mars"),
+        # oldest first, in the order they happened
         ("  2025:", ""),
-        ("    -", "GDG DevFest Uzbekistan"),
+        ("    -", "HackMars 1.0"),                       # Nov 20 – Dec 23
+        ("    -", "GDG DevFest Uzbekistan"),             # Dec 6
+        ("  2026:", ""),
+        ("    -", "Paynet Corporate Hackathon 2026"),    # spring
+        ("    -", "Game Fest 2026"),                     # May 15–16
+        ("    -", "GDG Build with AI  # Team Mars"),     # summer
+        ("    -", "35 LVL Game Jam"),                    # Aug 21–23
+        ("    -", "ICT WEEK"),                           # Sep 22–25
+        ("    -", "Yandex Dev Camp 2026"),               # Oct 10–31
     ]
     LINE_H = 19.5
     PX, PY, PW = 70, 78, 580
