@@ -2,7 +2,7 @@
   @raximnuraliyev
 -->
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:112d22,100:238636&height=140&section=header&text=Rakhim%20Nuraliyev&fontSize=44&fontColor=e6edf3&fontAlignY=68&animation=fadeIn" width="100%" />
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=112d22,238636,112d22&height=140&section=header&text=Rakhim%20Nuraliyev&fontSize=44&fontColor=e6edf3&fontAlignY=68&animation=fadeIn" width="100%" />
 
 <div align="center">
 <a href="https://git.io/typing-svg">
@@ -22,12 +22,15 @@ experience:
   - { role: Full-Stack Developer,          org: BOGATIR Textile  }
 
 events:
-  - GameFest 2026
-  - ETHOnline Hackathon
-  - 35 LVL Game Jam
-  - GDG DevFest Uzbekistan 2025
-  - GDG Build with AI — EdTech Hackathon & Ideathon
-  - PAYNET x ITPU Hackathon 2026   # Team Mars
+  2026:
+    - ICT WEEK
+    - GameFest
+    - ETHOnline Hackathon
+    - 35 LVL Game Jam
+    - GDG Build with AI — EdTech Hackathon & Ideathon
+    - PAYNET x ITPU Hackathon   # Team Mars
+  2025:
+    - GDG DevFest Uzbekistan
 ```
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/dark.png" width="100%" />
@@ -65,4 +68,4 @@ events:
 
 </div>
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:238636,50:112d22,100:0d1117&height=90&section=footer" width="100%" />
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=112d22,238636,112d22&height=90&section=footer" width="100%" />

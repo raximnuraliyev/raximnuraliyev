@@ -216,7 +216,7 @@ def lastfm_card():
 
     sorted_tags = sorted(tag_counts.items(), key=lambda x: x[1], reverse=True)[:5]
     if not sorted_tags:
-        sorted_tags = [("No tags found", 1)]
+        sorted_tags = [("Just chilling (no music lately)", 1)]
 
     max_score = sorted_tags[0][1] if sorted_tags[0][1] > 0 else 1
 
@@ -233,16 +233,17 @@ def lastfm_card():
         # Label
         rows += f'<text x="20" y="{y+32}" font-family="Segoe UI,Arial,sans-serif" font-size="16" fill="{TEXT_PRI}" font-weight="600" text-transform="uppercase">{esc(tag)}</text>'
         
-        # Bar
-        bar_max = 500
-        bar_width = max(20, int((score / max_score) * bar_max))
-        bar_x = W - 20 - bar_max
-        
-        rows += f'<rect x="{bar_x}" y="{y+15}" width="{bar_max}" height="24" rx="4" fill="#21262d"/>'
-        rows += f'<rect x="{bar_x}" y="{y+15}" width="{bar_width}" height="24" rx="4" fill="{color}"/>'
-        
-        # Score Text (optional, can just show relative bars, but a number looks nice)
-        rows += f'<text x="{bar_x + 10}" y="{y+32}" font-family="Segoe UI,Arial,sans-serif" font-size="12" fill="#ffffff" font-weight="700">~{score} pts</text>'
+        # Bar (only if not chilling)
+        if tag != "Just chilling (no music lately)":
+            bar_max = 500
+            bar_width = max(20, int((score / max_score) * bar_max))
+            bar_x = W - 20 - bar_max
+            
+            rows += f'<rect x="{bar_x}" y="{y+15}" width="{bar_max}" height="24" rx="4" fill="#21262d"/>'
+            rows += f'<rect x="{bar_x}" y="{y+15}" width="{bar_width}" height="24" rx="4" fill="{color}"/>'
+            
+            # Score Text
+            rows += f'<text x="{bar_x + 10}" y="{y+32}" font-family="Segoe UI,Arial,sans-serif" font-size="12" fill="#ffffff" font-weight="700">~{score} pts</text>'
 
         if i < len(sorted_tags)-1:
             rows += f'<line x1="20" y1="{y+ROW_H}" x2="{W-20}" y2="{y+ROW_H}" stroke="{BORDER}" stroke-width="1" opacity="0.6"/>'
