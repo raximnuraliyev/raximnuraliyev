@@ -14,9 +14,9 @@ BORDER       = "#21262d"
 TEXT_PRI     = "#e6edf3"
 TEXT_MUT     = "#8b949e"
 TEXT_FAINT   = "#484f58"
-GREEN        = "#e67e22"
-RED          = "#d35400"
-YELLOW       = "#f39c12"
+GREEN        = "#8A3A1E"
+RED          = "#8A3A1E"
+YELLOW       = "#AC7F0E"
 
 try:
     from datetime import timezone
@@ -224,7 +224,7 @@ def lastfm_card():
     H = Y0 + len(sorted_tags) * ROW_H + 20
     rows = ""
     
-    colors = ["#c0392b", "#d35400", "#e67e22", "#d68910", "#a04000"]
+    colors = ["#AC7F0E", "#8A3A1E", "#975B28", "#6D472F", "#4F2421"]
     
     for i, (tag, score) in enumerate(sorted_tags):
         y = Y0 + i * ROW_H
