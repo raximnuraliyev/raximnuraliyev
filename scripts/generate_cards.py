@@ -32,7 +32,7 @@ FRAME_S = W / 675                 # frame PNGs are 675 px wide
 FRAME_TOP_H = round(670 * FRAME_S)
 FRAME_BOT_H = round(530 * FRAME_S)
 HEADER_H  = 560
-PROFILE_H = 340
+PROFILE_H = 440
 
 NOW = datetime.now(timezone.utc).strftime("%d %b %Y")
 
@@ -310,12 +310,19 @@ def info_card():
         ("  -", "{ role: SWE Intern, org: UIC Games }"),
         ("  -", "{ role: Full-Stack Dev, org: BOGATIR Textile }"),
         ("events:", ""),
-        ("  2026:", "ICT WEEK · GameFest · ETHOnline Hackathon"),
-        ("", "35 LVL Game Jam · GDG Build with AI"),
-        ("", "PAYNET x ITPU Hackathon  # Team Mars"),
-        ("  2025:", "GDG DevFest Uzbekistan"),
+        ("  2026:", ""),
+        ("    -", "ICT WEEK"),
+        ("    -", "Game Fest 2026"),
+        ("    -", "Yandex Dev Camp 2026"),
+        ("    -", "35 LVL Game Jam"),
+        ("    -", "GDG Build with AI"),
+        ("    -", "Paynet Corporate Hackathon 2026  # Team Mars"),
+        ("  2025:", ""),
+        ("    -", "GDG DevFest Uzbekistan"),
     ]
-    PX, PY, PW, PH = 70, 78, 580, 240
+    LINE_H = 19.5
+    PX, PY, PW = 70, 78, 580
+    PH = round(28 + len(lines_data) * LINE_H)
     out = (
         svg_open(H, font=True, defs=vignette_defs(.5, .4))
         + img("bats", -24, 60, 92, opacity=.4)
@@ -324,15 +331,19 @@ def info_card():
         + heading(52, "Profile")
         + panel(PX, PY, PW, PH)
         + img("george_russell", 486, PY + 6, 160, opacity=.6, extra='mask="url(#vig)"')
-        + img("sticker_63", 664, 262, 88, opacity=.85)
+        + img("sticker_63", 664, PY + PH - 56, 88, opacity=.85)
     )
     for i, (key, val) in enumerate(lines_data):
-        y = PY + 28 + i * 19.5
+        y = PY + 28 + i * LINE_H
         if key:
-            out += f'<text x="{PX+22}" y="{y}" font-family="{MONO}" font-size="12" fill="{TEXT_PRI}" font-weight="700">{esc(key)}</text>'
+            out += f'<text x="{PX+22}" y="{y}" font-family="{MONO}" font-size="12" fill="{TEXT_PRI}" font-weight="700" xml:space="preserve">{esc(key)}</text>'
         if val:
             x = PX + 22 + (max(len(key), 7) + 1) * 7.2
-            out += f'<text x="{x:.0f}" y="{y}" font-family="{MONO}" font-size="12" fill="{TEXT_SEC}">{esc(val)}</text>'
+            val, _, note = val.partition("  # ")
+            out += f'<text x="{x:.0f}" y="{y}" font-family="{MONO}" font-size="12" fill="{TEXT_SEC}">{esc(val)}'
+            if note:   # yaml-style comment, dimmer
+                out += f'<tspan fill="{TEXT_DIM}" font-style="italic">  # {esc(note)}</tspan>'
+            out += '</text>'
     return out + '</svg>'
 
 
