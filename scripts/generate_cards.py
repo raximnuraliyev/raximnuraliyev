@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
-Black & White Gothic Halloween — GitHub Profile SVG Generator
-Monochrome ink-etching aesthetic. No purple. Steam-style clean headers.
+GitHub Profile SVG Generator — Theme-Aware
+Reads colors, fonts, labels, and animation settings from the active theme's
+theme.json. Falls back to a default dark palette if no theme is loaded.
 """
-import re, urllib.request, urllib.parse, base64, json, random
+import re, urllib.request, urllib.parse, base64, json, random, math
 from datetime import datetime
 from pathlib import Path
 from xml.etree import ElementTree as ET
@@ -12,18 +13,70 @@ ROOT   = Path(__file__).parent.parent
 ASSETS = ROOT / "assets"
 ASSETS.mkdir(exist_ok=True)
 
-# ── COLOR PALETTE: Monochrome Gothic ───────────────────────
-BG        = "#0D0D0D"   # Near-black
-BG2       = "#161616"   # Slightly lighter panel
-BG3       = "#1E1E1E"   # Card surface
-BORDER    = "#2A2A2A"   # Subtle border
-BORDER_LT = "#3A3A3A"   # Lighter border accent
-TEXT_PRI  = "#E0E0E0"   # Primary text — warm white
-TEXT_SEC  = "#999999"   # Secondary text
-TEXT_DIM  = "#555555"   # Dim text
-ACCENT    = "#C8C8C8"   # Light accent for headers
-GOLD      = "#B8860B"   # Dark goldenrod for stars — the ONLY color accent
-WHITE     = "#FFFFFF"
+# ── THEME LOADING ──────────────────────────────────────────
+def load_theme():
+    """Load active theme config. Returns dict with palette, fonts, labels, etc."""
+    active_file = ROOT / "active_theme.json"
+    theme_name = "halloween"  # default fallback
+    if active_file.exists():
+        try:
+            theme_name = json.loads(active_file.read_text(encoding="utf-8")).get("theme", "halloween")
+        except:
+            pass
+
+    theme_json = ROOT / "themes" / theme_name / "theme.json"
+    if theme_json.exists():
+        try:
+            return json.loads(theme_json.read_text(encoding="utf-8"))
+        except:
+            pass
+
+    # Fallback: return hardcoded defaults (original Halloween palette)
+    return {
+        "name": "halloween",
+        "palette": {
+            "bg": "#0D0D0D", "bg2": "#161616", "bg3": "#1E1E1E",
+            "border": "#2A2A2A", "border_lt": "#3A3A3A",
+            "text_pri": "#E0E0E0", "text_sec": "#999999", "text_dim": "#555555",
+            "accent": "#C8C8C8", "gold": "#B8860B", "accent2": "#C8C8C8",
+            "white": "#FFFFFF"
+        },
+        "bar_shades": ["#E0E0E0", "#BBBBBB", "#999999", "#777777", "#555555"],
+        "fonts": {"display": "Georgia, serif", "mono": "Consolas, monospace"},
+        "labels": {
+            "info_header": "PROFILE",
+            "goodreads_header": "CURRENTLY READING",
+            "lastfm_header": "TOP TAGS · LAST 30 DAYS",
+            "letterboxd_header": "RECENTLY WATCHED",
+            "footer_text": "crafted with dark magic"
+        },
+        "animations": {"snowfall": False, "twinkle": False},
+        "divider_ornament": "circle"
+    }
+
+
+THEME = load_theme()
+P = THEME["palette"]  # shorthand for palette
+
+# Extract palette into module-level vars for convenience
+BG        = P["bg"]
+BG2       = P["bg2"]
+BG3       = P["bg3"]
+BORDER    = P["border"]
+BORDER_LT = P["border_lt"]
+TEXT_PRI  = P["text_pri"]
+TEXT_SEC  = P["text_sec"]
+TEXT_DIM  = P["text_dim"]
+ACCENT    = P["accent"]
+GOLD      = P["gold"]
+ACCENT2   = P.get("accent2", ACCENT)
+WHITE     = P["white"]
+
+FONT_DISPLAY = THEME.get("fonts", {}).get("display", "Georgia, serif")
+FONT_MONO    = THEME.get("fonts", {}).get("mono", "Consolas, monospace")
+LABELS       = THEME.get("labels", {})
+ANIMATIONS   = THEME.get("animations", {})
+BAR_SHADES   = THEME.get("bar_shades", ["#E0E0E0", "#BBBBBB", "#999999", "#777777", "#555555"])
 
 try:
     from datetime import timezone
@@ -39,7 +92,7 @@ def get_icon_b64(idx):
         return ""
 
 def svg_defs():
-    return (
+    defs = (
         '<defs>'
         '<linearGradient id="fadeEdge" x1="0" y1="0" x2="1" y2="0">'
         f'<stop offset="0%" stop-color="{BORDER}" stop-opacity="0"/>'
@@ -48,8 +101,18 @@ def svg_defs():
         f'<stop offset="85%" stop-color="{BORDER}" stop-opacity="0.6"/>'
         f'<stop offset="100%" stop-color="{BORDER}" stop-opacity="0"/>'
         '</linearGradient>'
-        '</defs>'
     )
+    # Add accent gradient for Christmas glow effects
+    if ACCENT2 != ACCENT:
+        defs += (
+            '<linearGradient id="accentGlow" x1="0" y1="0" x2="1" y2="0">'
+            f'<stop offset="0%" stop-color="{ACCENT2}" stop-opacity="0"/>'
+            f'<stop offset="50%" stop-color="{ACCENT2}" stop-opacity="0.3"/>'
+            f'<stop offset="100%" stop-color="{ACCENT2}" stop-opacity="0"/>'
+            '</linearGradient>'
+        )
+    defs += '</defs>'
+    return defs
 
 def svg_card_bg(w, h, icons=None):
     """Minimal dark card background with thin border and optional faded icons."""
@@ -66,7 +129,7 @@ def svg_steam_header(w, label):
     return (
         f'<rect x="0" y="0" width="{w}" height="38" rx="6" fill="{BG2}"/>'
         f'<rect x="0" y="30" width="{w}" height="8" fill="{BG2}"/>'
-        f'<text x="18" y="25" font-family="Georgia, serif" font-size="11" fill="{ACCENT}" '
+        f'<text x="18" y="25" font-family="{FONT_DISPLAY}" font-size="11" fill="{ACCENT}" '
         f'letter-spacing="3" font-weight="400" text-transform="uppercase">{label}</text>'
         f'<line x1="15" y1="38" x2="{w-15}" y2="38" stroke="{BORDER_LT}" stroke-width="0.5"/>'
     )
@@ -74,7 +137,7 @@ def svg_steam_header(w, label):
 def svg_footer(w, h):
     return (
         f'<line x1="15" y1="{h-20}" x2="{w-15}" y2="{h-20}" stroke="{BORDER}" stroke-width="0.3"/>'
-        f'<text x="{w-12}" y="{h-7}" font-family="Georgia, serif" font-size="8" fill="{TEXT_DIM}" '
+        f'<text x="{w-12}" y="{h-7}" font-family="{FONT_DISPLAY}" font-size="8" fill="{TEXT_DIM}" '
         f'text-anchor="end" font-style="italic">{NOW}</text>'
     )
 
@@ -105,8 +168,67 @@ def get_b64_image(url):
         return ""
 
 
+# ── SNOWFALL ANIMATION (Christmas only) ───────────────────
+def snowfall_css():
+    """CSS keyframes for gentle snowfall. Only included when theme enables it."""
+    if not ANIMATIONS.get("snowfall", False):
+        return ""
+    css = '<style>'
+    css += '@keyframes snowfall { 0% { transform: translateY(-10px); opacity: 0; } 10% { opacity: 0.8; } 90% { opacity: 0.6; } 100% { transform: translateY(185px); opacity: 0; } }'
+    css += '@keyframes drift { 0% { transform: translateX(0); } 50% { transform: translateX(8px); } 100% { transform: translateX(0); } }'
+    css += '@keyframes twinkle { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.7; } }'
+    css += '@media (prefers-reduced-motion: reduce) { .snowflake, .twinkle-dot { animation: none !important; } }'
+    css += '</style>'
+    return css
+
+def snowflakes_svg(w, h, count=12):
+    """Generate scattered snowflake dots with staggered fall animation."""
+    if not ANIMATIONS.get("snowfall", False):
+        return ""
+    result = ""
+    random.seed(42)  # deterministic for consistent renders
+    for i in range(count):
+        x = random.randint(20, w - 20)
+        size = random.uniform(1.2, 2.8)
+        delay = random.uniform(0, 8)
+        dur = random.uniform(6, 12)
+        opacity = random.uniform(0.15, 0.4)
+        result += (
+            f'<circle class="snowflake" cx="{x}" cy="-5" r="{size:.1f}" fill="{WHITE}" opacity="{opacity:.2f}">'
+            f'<animateTransform attributeName="transform" type="translate" '
+            f'values="0,-5;{random.randint(-15,15)},{h+10}" dur="{dur:.1f}s" '
+            f'begin="{delay:.1f}s" repeatCount="indefinite"/>'
+            f'<animate attributeName="opacity" values="0;{opacity:.2f};{opacity:.2f};0" '
+            f'dur="{dur:.1f}s" begin="{delay:.1f}s" repeatCount="indefinite"/>'
+            f'</circle>'
+        )
+    return result
+
+def twinkle_dots_svg(w, h, count=8):
+    """Subtle twinkling dots like distant string lights."""
+    if not ANIMATIONS.get("twinkle", False):
+        return ""
+    result = ""
+    random.seed(99)  # different seed from snowflakes
+    colors = [GOLD, ACCENT2, ACCENT, WHITE]
+    for i in range(count):
+        x = random.randint(30, w - 30)
+        y = random.randint(15, h - 15)
+        size = random.uniform(0.8, 1.5)
+        delay = random.uniform(0, 5)
+        dur = random.uniform(2, 4)
+        color = colors[i % len(colors)]
+        result += (
+            f'<circle cx="{x}" cy="{y}" r="{size:.1f}" fill="{color}" opacity="0.3">'
+            f'<animate attributeName="opacity" values="0.15;0.5;0.15" '
+            f'dur="{dur:.1f}s" begin="{delay:.1f}s" repeatCount="indefinite"/>'
+            f'</circle>'
+        )
+    return result
+
+
 # ═══════════════════════════════════════════════════════════
-#  HEADER BANNER — Clean monochrome with scattered stickers
+#  HEADER BANNER — Clean design with scattered stickers
 # ═══════════════════════════════════════════════════════════
 def header_banner():
     W, H = 800, 180
@@ -120,41 +242,78 @@ def header_banner():
     if icon_bl: corners.append((icon_bl, 25, H-65, 50, 0.2))
     if icon_br: corners.append((icon_br, W-75, H-65, 50, 0.2))
 
-    return (
-        f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
+    subtitle = LABELS.get("header_subtitle_prefix", "PDP University \u2014 B.S. Software Development")
+    tagline = LABELS.get("header_tagline", "SOFTWARE ENGINEER \u00b7 GAME DEV \u00b7 CREATIVE")
+
+    svg = (
+        f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" role="img">'
+        f'<title>Rakhim Nuraliyev — Profile Header</title>'
+        f'<desc>Header banner for Rakhim Nuraliyev\'s GitHub profile</desc>'
+        f'{snowfall_css()}'
         f'{svg_defs()}'
         f'{svg_card_bg(W, H, icons=corners)}'
         # Title
-        f'<text x="{W//2}" y="82" text-anchor="middle" font-family="Georgia, serif" font-size="40" font-weight="700" fill="{WHITE}">Rakhim Nuraliyev</text>'
-        # Thin ornamental line
+        f'<text x="{W//2}" y="82" text-anchor="middle" font-family="{FONT_DISPLAY}" font-size="40" font-weight="700" fill="{WHITE}">Rakhim Nuraliyev</text>'
+        # Ornamental line
         f'<line x1="{W//2-100}" y1="100" x2="{W//2+100}" y2="100" stroke="url(#fadeEdge)" stroke-width="1"/>'
+    )
+    # Accent glow line (Christmas)
+    if ACCENT2 != ACCENT:
+        svg += f'<line x1="{W//2-60}" y1="101" x2="{W//2+60}" y2="101" stroke="url(#accentGlow)" stroke-width="0.5"/>'
+
+    svg += (
         # Subtitle
-        f'<text x="{W//2}" y="120" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="{TEXT_SEC}" font-style="italic" letter-spacing="2">PDP University \u2014 B.S. Software Development</text>'
+        f'<text x="{W//2}" y="120" text-anchor="middle" font-family="{FONT_DISPLAY}" font-size="12" fill="{TEXT_SEC}" font-style="italic" letter-spacing="2">{esc(subtitle)}</text>'
         # Bottom tagline
-        f'<text x="{W//2}" y="155" text-anchor="middle" font-family="Georgia, serif" font-size="9" fill="{TEXT_DIM}" letter-spacing="6">SOFTWARE ENGINEER \u00b7 GAME DEV \u00b7 CREATIVE</text>'
+        f'<text x="{W//2}" y="155" text-anchor="middle" font-family="{FONT_DISPLAY}" font-size="9" fill="{TEXT_DIM}" letter-spacing="6">{esc(tagline)}</text>'
+        f'{snowflakes_svg(W, H, count=10)}'
+        f'{twinkle_dots_svg(W, H, count=6)}'
         f'</svg>'
     )
+    return svg
 
 
 # ═══════════════════════════════════════════════════════════
-#  DIVIDER — Minimal ornamental
+#  DIVIDER — Ornamental separator
 # ═══════════════════════════════════════════════════════════
 def divider_svg():
     W, H = 800, 20
     mid = W // 2
-    return (
-        f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
+    ornament = THEME.get("divider_ornament", "circle")
+
+    svg = (
+        f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" role="img">'
+        f'<title>Section Divider</title>'
         f'{svg_defs()}'
         f'<line x1="100" y1="{H//2}" x2="{W-100}" y2="{H//2}" stroke="url(#fadeEdge)" stroke-width="0.5"/>'
-        f'<circle cx="{mid}" cy="{H//2}" r="2" fill="{BORDER_LT}"/>'
-        f'<circle cx="{mid-30}" cy="{H//2}" r="1" fill="{BORDER}" opacity="0.5"/>'
-        f'<circle cx="{mid+30}" cy="{H//2}" r="1" fill="{BORDER}" opacity="0.5"/>'
-        f'</svg>'
     )
+
+    if ornament == "snowflake":
+        # A tiny 6-pointed snowflake at center
+        cy = H // 2
+        r = 3.5
+        svg += f'<circle cx="{mid}" cy="{cy}" r="1" fill="{BORDER_LT}"/>'
+        for angle in range(0, 360, 60):
+            rad = math.radians(angle)
+            x2 = mid + r * math.cos(rad)
+            y2 = cy + r * math.sin(rad)
+            svg += f'<line x1="{mid}" y1="{cy}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="{BORDER_LT}" stroke-width="0.5"/>'
+        # Side dots
+        svg += f'<circle cx="{mid-30}" cy="{cy}" r="1" fill="{BORDER}" opacity="0.5"/>'
+        svg += f'<circle cx="{mid+30}" cy="{cy}" r="1" fill="{BORDER}" opacity="0.5"/>'
+    else:
+        # Original circle ornament
+        cy = H // 2
+        svg += f'<circle cx="{mid}" cy="{cy}" r="2" fill="{BORDER_LT}"/>'
+        svg += f'<circle cx="{mid-30}" cy="{cy}" r="1" fill="{BORDER}" opacity="0.5"/>'
+        svg += f'<circle cx="{mid+30}" cy="{cy}" r="1" fill="{BORDER}" opacity="0.5"/>'
+
+    svg += '</svg>'
+    return svg
 
 
 # ═══════════════════════════════════════════════════════════
-#  INFO CARD — Clean dark card (no parchment)
+#  INFO CARD — Clean dark card
 # ═══════════════════════════════════════════════════════════
 def info_card():
     W, H = 800, 310
@@ -179,11 +338,15 @@ def info_card():
     icons = []
     if icon_deco: icons.append((icon_deco, W-100, 15, 65, 0.12))
 
+    header_label = LABELS.get("info_header", "PROFILE")
+
     result = (
-        f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
+        f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" role="img">'
+        f'<title>Profile Information Card</title>'
+        f'<desc>Professional information for Rakhim Nuraliyev</desc>'
         f'{svg_defs()}'
         f'{svg_card_bg(W, H, icons=icons)}'
-        f'{svg_steam_header(W, "PROFILE")}'
+        f'{svg_steam_header(W, header_label)}'
     )
     
     y_start = 60
@@ -191,10 +354,10 @@ def info_card():
     for i, (key, val) in enumerate(lines_data):
         y = y_start + i * line_h
         if key:
-            result += f'<text x="22" y="{y}" font-family="Consolas, monospace" font-size="12" fill="{ACCENT}" font-weight="700">{esc(key)}</text>'
+            result += f'<text x="22" y="{y}" font-family="{FONT_MONO}" font-size="12" fill="{ACCENT}" font-weight="700">{esc(key)}</text>'
         if val:
             x_off = 22 + len(key) * 7.2 + 6 if key else 22
-            result += f'<text x="{x_off}" y="{y}" font-family="Consolas, monospace" font-size="12" fill="{TEXT_SEC}">{esc(val)}</text>'
+            result += f'<text x="{x_off}" y="{y}" font-family="{FONT_MONO}" font-size="12" fill="{TEXT_SEC}">{esc(val)}</text>'
     
     result += svg_footer(W, H)
     result += '</svg>'
@@ -228,11 +391,15 @@ def goodreads_card():
     icons = []
     if icon: icons.append((icon, W-75, 5, 40, 0.15))
 
+    header_label = LABELS.get("goodreads_header", "CURRENTLY READING")
+
     result = (
-        f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
+        f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" role="img">'
+        f'<title>Currently Reading — Goodreads</title>'
+        f'<desc>Books currently being read by Rakhim Nuraliyev</desc>'
         f'{svg_defs()}'
         f'{svg_card_bg(W, H, icons=icons)}'
-        f'{svg_steam_header(W, "CURRENTLY READING")}'
+        f'{svg_steam_header(W, header_label)}'
     )
     
     for i, (t, a, pub, img) in enumerate(books):
@@ -242,12 +409,12 @@ def goodreads_card():
             result += f'<image x="18" y="{y+4}" width="40" height="60" preserveAspectRatio="xMidYMid slice" href="{img}"/>'
         else:
             result += f'<rect x="18" y="{y+4}" width="40" height="60" rx="2" fill="{BG3}"/>'
-        result += f'<text x="72" y="{y+26}" font-family="Georgia, serif" font-size="14" fill="{TEXT_PRI}" font-weight="600">{t}</text>'
+        result += f'<text x="72" y="{y+26}" font-family="{FONT_DISPLAY}" font-size="14" fill="{TEXT_PRI}" font-weight="600">{t}</text>'
         sub = []
         if a: sub.append(f"by {a}")
         if pub: sub.append(f"({pub})")
         if sub:
-            result += f'<text x="72" y="{y+45}" font-family="Georgia, serif" font-size="11" fill="{TEXT_SEC}" font-style="italic">{" ".join(sub)}</text>'
+            result += f'<text x="72" y="{y+45}" font-family="{FONT_DISPLAY}" font-size="11" fill="{TEXT_SEC}" font-style="italic">{" ".join(sub)}</text>'
         if i < len(books)-1:
             result += f'<line x1="18" y1="{y+ROW_H}" x2="{W-18}" y2="{y+ROW_H}" stroke="{BORDER}" stroke-width="0.5" stroke-dasharray="2,4"/>'
     
@@ -292,27 +459,29 @@ def lastfm_card():
     icon = get_icon_b64(5)
     icons = []
     if icon: icons.append((icon, W-75, 5, 40, 0.15))
-    # Monochrome gradient bars — white to gray
-    bar_shades = ["#E0E0E0", "#BBBBBB", "#999999", "#777777", "#555555"]
+
+    header_label = LABELS.get("lastfm_header", "TOP TAGS \u00b7 LAST 30 DAYS")
 
     result = (
-        f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
+        f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" role="img">'
+        f'<title>Top Music Tags — Last.fm</title>'
+        f'<desc>Top music genre tags from Last.fm for the past 30 days</desc>'
         f'{svg_defs()}'
         f'{svg_card_bg(W, H, icons=icons)}'
-        f'{svg_steam_header(W, "TOP TAGS \u00b7 LAST 30 DAYS")}'
+        f'{svg_steam_header(W, header_label)}'
     )
     
     for i, (tag, score) in enumerate(sorted_tags):
         y = Y0 + i * ROW_H
-        shade = bar_shades[i % len(bar_shades)]
-        result += f'<text x="22" y="{y+30}" font-family="Georgia, serif" font-size="14" fill="{TEXT_PRI}" font-weight="600">{esc(tag)}</text>'
+        shade = BAR_SHADES[i % len(BAR_SHADES)]
+        result += f'<text x="22" y="{y+30}" font-family="{FONT_DISPLAY}" font-size="14" fill="{TEXT_PRI}" font-weight="600">{esc(tag)}</text>'
         if tag != "just chilling... no music lately":
             bar_max = 440
             bar_width = max(18, int((score / max_score) * bar_max))
             bar_x = W - 22 - bar_max
             result += f'<rect x="{bar_x}" y="{y+16}" width="{bar_max}" height="18" rx="9" fill="{BG3}"/>'
             result += f'<rect x="{bar_x}" y="{y+16}" width="{bar_width}" height="18" rx="9" fill="{shade}" opacity="0.7"/>'
-            result += f'<text x="{bar_x+10}" y="{y+30}" font-family="Georgia, serif" font-size="9" fill="{BG}" font-weight="700">~{score}</text>'
+            result += f'<text x="{bar_x+10}" y="{y+30}" font-family="{FONT_DISPLAY}" font-size="9" fill="{BG}" font-weight="700">~{score}</text>'
         if i < len(sorted_tags)-1:
             result += f'<line x1="22" y1="{y+ROW_H}" x2="{W-22}" y2="{y+ROW_H}" stroke="{BORDER}" stroke-width="0.3" stroke-dasharray="2,4"/>'
     
@@ -360,11 +529,15 @@ def letterboxd_card():
     icons = []
     if icon: icons.append((icon, W-75, 5, 40, 0.15))
 
+    header_label = LABELS.get("letterboxd_header", "RECENTLY WATCHED")
+
     result = (
-        f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
+        f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" role="img">'
+        f'<title>Recently Watched — Letterboxd</title>'
+        f'<desc>Recent film watches from Letterboxd</desc>'
         f'{svg_defs()}'
         f'{svg_card_bg(W, H, icons=icons)}'
-        f'{svg_steam_header(W, "RECENTLY WATCHED")}'
+        f'{svg_steam_header(W, header_label)}'
     )
     
     for i, (film, stars, img) in enumerate(films):
@@ -374,9 +547,9 @@ def letterboxd_card():
             result += f'<image x="18" y="{y+4}" width="40" height="60" preserveAspectRatio="xMidYMid slice" href="{img}"/>'
         else:
             result += f'<rect x="18" y="{y+4}" width="40" height="60" rx="2" fill="{BG3}"/>'
-        result += f'<text x="72" y="{y+35}" font-family="Georgia, serif" font-size="14" fill="{TEXT_PRI}" font-weight="600">{film}</text>'
+        result += f'<text x="72" y="{y+35}" font-family="{FONT_DISPLAY}" font-size="14" fill="{TEXT_PRI}" font-weight="600">{film}</text>'
         if stars:
-            result += f'<text x="{W-22}" y="{y+35}" text-anchor="end" font-family="Georgia, serif" font-size="14" fill="{GOLD}">{esc(stars)}</text>'
+            result += f'<text x="{W-22}" y="{y+35}" text-anchor="end" font-family="{FONT_DISPLAY}" font-size="14" fill="{GOLD}">{esc(stars)}</text>'
         if i < len(films)-1:
             result += f'<line x1="18" y1="{y+ROW_H}" x2="{W-18}" y2="{y+ROW_H}" stroke="{BORDER}" stroke-width="0.5" stroke-dasharray="2,4"/>'
     
@@ -392,8 +565,12 @@ def footer_banner():
     W, H = 800, 50
     icon_a = get_icon_b64(8)
     icon_b = get_icon_b64(4)
+    footer_text = LABELS.get("footer_text", "crafted with dark magic")
+
     r = (
-        f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg">'
+        f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" role="img">'
+        f'<title>Profile Footer</title>'
+        f'{snowfall_css()}'
         f'{svg_defs()}'
         f'<rect width="{W}" height="{H}" fill="{BG}"/>'
         f'<line x1="100" y1="15" x2="{W-100}" y2="15" stroke="url(#fadeEdge)" stroke-width="0.5"/>'
@@ -403,18 +580,20 @@ def footer_banner():
     if icon_b:
         r += f'<image href="{icon_b}" x="{W-53}" y="5" width="38" height="38" opacity="0.15"/>'
     r += (
-        f'<text x="{W//2}" y="35" text-anchor="middle" font-family="Georgia, serif" font-size="9" fill="{TEXT_DIM}" letter-spacing="4" font-style="italic">'
-        f'crafted with dark magic</text>'
+        f'<text x="{W//2}" y="35" text-anchor="middle" font-family="{FONT_DISPLAY}" font-size="9" fill="{TEXT_DIM}" letter-spacing="4" font-style="italic">'
+        f'{esc(footer_text)}</text>'
+        f'{snowflakes_svg(W, H, count=6)}'
         f'</svg>'
     )
     return r
 
 
 # ═══════════════════════════════════════════════════════════
-if __name__ == "__main__":
-    import sys
-    sys.stdout.reconfigure(encoding='utf-8')
-    print("Generating Black & White Gothic profile assets...")
+def main():
+    """Generate all SVG assets using the active theme."""
+    theme_name = THEME.get("display_name", THEME.get("name", "unknown"))
+    print(f"Generating profile assets — theme: {theme_name}")
+    
     (ASSETS / "header_banner.svg").write_text(header_banner(), encoding="utf-8")
     print("  done: header_banner.svg")
     (ASSETS / "divider.svg").write_text(divider_svg(), encoding="utf-8")
@@ -429,4 +608,9 @@ if __name__ == "__main__":
     print("  done: letterboxd_card.svg")
     (ASSETS / "footer_banner.svg").write_text(footer_banner(), encoding="utf-8")
     print("  done: footer_banner.svg")
-    print("\nAll B&W Gothic assets generated.")
+    print(f"\nAll {theme_name} assets generated.")
+
+if __name__ == "__main__":
+    import sys
+    sys.stdout.reconfigure(encoding='utf-8')
+    main()
