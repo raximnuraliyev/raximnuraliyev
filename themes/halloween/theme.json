@@ -1,0 +1,48 @@
+{
+  "name": "halloween",
+  "display_name": "Black & White Gothic Halloween",
+  "palette": {
+    "bg": "#0D0D0D",
+    "bg2": "#161616",
+    "bg3": "#1E1E1E",
+    "border": "#2A2A2A",
+    "border_lt": "#3A3A3A",
+    "text_pri": "#E0E0E0",
+    "text_sec": "#999999",
+    "text_dim": "#555555",
+    "accent": "#C8C8C8",
+    "gold": "#B8860B",
+    "accent2": "#C8C8C8",
+    "white": "#FFFFFF"
+  },
+  "bar_shades": ["#E0E0E0", "#BBBBBB", "#999999", "#777777", "#555555"],
+  "fonts": {
+    "display": "Georgia, serif",
+    "mono": "Consolas, monospace"
+  },
+  "labels": {
+    "header_subtitle_prefix": "PDP University — B.S. Software Development",
+    "header_tagline": "SOFTWARE ENGINEER · GAME DEV · CREATIVE",
+    "info_header": "PROFILE",
+    "goodreads_header": "CURRENTLY READING",
+    "lastfm_header": "TOP TAGS · LAST 30 DAYS",
+    "letterboxd_header": "RECENTLY WATCHED",
+    "footer_text": "crafted with dark magic",
+    "footer_alt": "Happy Halloween",
+    "section_stack": "The Apothecary",
+    "section_archives": "The Archives"
+  },
+  "hits_badge": {
+    "color": "0D0D0D",
+    "label_color": "1E1E1E"
+  },
+  "typing_svg": {
+    "color": "999999"
+  },
+  "animations": {
+    "snowfall": false,
+    "twinkle": false
+  },
+  "divider_ornament": "circle",
+  "description": "Monochrome ink-etching aesthetic with Gothic undertones."
+}
