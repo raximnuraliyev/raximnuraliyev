@@ -1,0 +1,48 @@
+{
+  "name": "christmas",
+  "display_name": "Cozy Winter Night Christmas",
+  "palette": {
+    "bg": "#0A0F0D",
+    "bg2": "#111A16",
+    "bg3": "#162018",
+    "border": "#1E3028",
+    "border_lt": "#2D4038",
+    "text_pri": "#E8E4E0",
+    "text_sec": "#A0B0A8",
+    "text_dim": "#4A6058",
+    "accent": "#D4C8B0",
+    "gold": "#C7A94E",
+    "accent2": "#8B2030",
+    "white": "#FFF8F0"
+  },
+  "bar_shades": ["#D4C8B0", "#A8B89E", "#8B9E88", "#6B8070", "#4A6058"],
+  "fonts": {
+    "display": "Georgia, serif",
+    "mono": "Consolas, monospace"
+  },
+  "labels": {
+    "header_subtitle_prefix": "PDP University — B.S. Software Development",
+    "header_tagline": "SOFTWARE ENGINEER · GAME DEV · CREATIVE",
+    "info_header": "PROFILE",
+    "goodreads_header": "CURRENTLY READING",
+    "lastfm_header": "TOP TAGS · LAST 30 DAYS",
+    "letterboxd_header": "RECENTLY WATCHED",
+    "footer_text": "crafted with winter magic ❄",
+    "footer_alt": "Merry Christmas & Happy New Year",
+    "section_stack": "The Workshop",
+    "section_archives": "The Advent Calendar"
+  },
+  "hits_badge": {
+    "color": "0A0F0D",
+    "label_color": "162018"
+  },
+  "typing_svg": {
+    "color": "A0B0A8"
+  },
+  "animations": {
+    "snowfall": true,
+    "twinkle": true
+  },
+  "divider_ornament": "snowflake",
+  "description": "Deep pine greens, warm golds, and cranberry reds — a cozy winter night by the fire."
+}
