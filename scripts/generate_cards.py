@@ -584,7 +584,7 @@ def header_banner():
         + f'<text x="{W//2}" y="522" text-anchor="middle" font-family="{FELL}" font-size="16" '
           f'fill="{TEXT_SEC}" font-style="italic" letter-spacing=".6">Game Developer @ UIC Games · Full-Stack @ BOGATIR Textile</text>'
         + f'<text x="{W//2}" y="550" text-anchor="middle" font-family="{FELL}" font-size="11.5" '
-          f'fill="#7F877F" letter-spacing="5">SOFTWARE ENGINEER · GAME DEV · CREATIVE</text>'
+          f'fill="#7F877F" letter-spacing="5">SOFTWARE ENGINEER · GAME DEV · WORLDBUILDER</text>'
         + f'<text x="{W//2}" y="578" text-anchor="middle" font-family="{SCRIPT}" font-size="21" fill="{GOLD}">{esc(sleeps_line())}</text>'
         + sparkle(W // 2 - 128, 571, 4, -.6) + sparkle(W // 2 + 128, 571, 4, -1.7)
         + flakes
