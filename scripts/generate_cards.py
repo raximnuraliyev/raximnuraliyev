@@ -593,19 +593,8 @@ def header_banner():
 
 
 # ═══════════════════════════════════════════════════════════
-#  THE NICE LIST — profile
+#  PROFILE
 # ═══════════════════════════════════════════════════════════
-def nice_stamp(cx, cy):
-    """Red rubber stamp: CERTIFIED NICE · 2026."""
-    return (f'<g transform="rotate(-14 {cx} {cy})" opacity=".78">'
-            f'<defs><path id="stampArc" d="M{cx-31} {cy} A31 31 0 1 1 {cx+31} {cy} A31 31 0 1 1 {cx-31} {cy}"/></defs>'
-            f'<circle cx="{cx}" cy="{cy}" r="42" fill="none" stroke="{RED_LT}" stroke-width="2.2"/>'
-            f'<circle cx="{cx}" cy="{cy}" r="37" fill="none" stroke="{RED_LT}" stroke-width=".8"/>'
-            f'<text font-family="{SERIF}" font-size="8.5" letter-spacing="2.4" fill="{RED_LT}" font-weight="700">'
-            f'<textPath href="#stampArc">CERTIFIED · NICE LIST · {TODAY.year} ·</textPath></text>'
-            f'<text x="{cx}" y="{cy+7}" text-anchor="middle" font-family="{CINZEL}" font-size="20" fill="{RED_LT}">Nice</text>'
-            f'{sparkle(cx, cy-14, 4, 0, RED_LT)}</g>')
-
 def info_card():
     H = PROFILE_H
     lines_data = [
@@ -636,11 +625,10 @@ def info_card():
         svg_open(H, faces=cinzel_face(), defs=vignette_defs(.5, .4) + BAUBLE_DEFS,
                  css=SWAY + BOB + TWINKLE + snow_css)
         + side_rules(H)
-        + heading(52, "The Nice List")
+        + heading(52, "Profile")
         + panel(PX, PY, PW, PH)
         + snowcap(PX + 30, PY, 160, seed=5, drips=3) + snowcap(PX + PW - 200, PY, 120, seed=6, drips=2)
         + img("george_russell", 486, PY + 6, 160, opacity=.6, extra='mask="url(#vig)"')
-        + nice_stamp(PX + PW - 74, PY + PH - 92)
         + img("sticker_63", 664, PY + PH - 56, 88, opacity=.85)
         + f'<g class="bob">{img("snoopy_gingerbread", -6, 120, 74)}</g>'
         + bauble(724, 0, 70, 12, "bGold", delay=-1.4) + bauble(744, 0, 40, 9, "bRed", delay=-3)
