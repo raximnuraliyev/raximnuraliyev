@@ -582,7 +582,7 @@ def header_banner():
         + name
         + f'<line x1="250" y1="494" x2="550" y2="494" stroke="url(#fade)"/>{diamond(400, 494, 3.5, GOLD)}'
         + f'<text x="{W//2}" y="522" text-anchor="middle" font-family="{FELL}" font-size="16" '
-          f'fill="{TEXT_SEC}" font-style="italic" letter-spacing=".6">SWE Intern @ UIC Games · Full-Stack @ BOGATIR Textile</text>'
+          f'fill="{TEXT_SEC}" font-style="italic" letter-spacing=".6">Game Developer @ UIC Games · Full-Stack @ BOGATIR Textile</text>'
         + f'<text x="{W//2}" y="550" text-anchor="middle" font-family="{FELL}" font-size="11.5" '
           f'fill="#7F877F" letter-spacing="5">SOFTWARE ENGINEER · GAME DEV · CREATIVE</text>'
         + f'<text x="{W//2}" y="578" text-anchor="middle" font-family="{SCRIPT}" font-size="21" fill="{GOLD}">{esc(sleeps_line())}</text>'
@@ -602,7 +602,7 @@ def info_card():
         ("education:", "PDP University — B.S. Software Development"),
         ("age:", "19"),
         ("experience:", ""),
-        ("  -", "{ role: SWE Intern, org: UIC Games }"),
+        ("  -", "{ role: Game Developer, org: UIC Games }"),
         ("  -", "{ role: Full-Stack Dev, org: BOGATIR Textile }"),
         ("events:", ""),
         # oldest first, in the order they happened
